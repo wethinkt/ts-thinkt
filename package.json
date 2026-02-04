@@ -1,0 +1,66 @@
+{
+  "name": "@wethinkt/ts-thinkt",
+  "version": "0.1.0",
+  "description": "TypeScript library for parsing and working with LLM conversation traces",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./api": {
+      "import": "./dist/api/index.js",
+      "types": "./dist/api/index.d.ts"
+    },
+    "./parsers": {
+      "import": "./dist/parsers/index.js",
+      "types": "./dist/parsers/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "npm run lint && tsc",
+    "build:fast": "tsc",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "typecheck": "tsc --noEmit",
+    "api:convert": "swagger2openapi src/api/swagger.json -o src/api/openapi.json",
+    "api:generate": "npm run api:convert && openapi-typescript src/api/openapi.json -o src/api/generated.ts"
+  },
+  "keywords": [
+    "llm",
+    "thinkt",
+    "claude",
+    "kimi",
+    "gemini",
+    "openapi",
+    "parser",
+    "conversation",
+    "trace"
+  ],
+  "author": "Neomantra Corp",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wethinkt/ts-thinkt"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
+    "eslint": "^9.39.2",
+    "openapi-typescript": "^7.10.1",
+    "swagger2openapi": "^7.0.8",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.54.0",
+    "vitest": "^2.1.0"
+  }
+}
