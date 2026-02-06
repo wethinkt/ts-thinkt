@@ -5,7 +5,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   geminiParser,
-  createGeminiParser,
   isGeminiJson,
   parseGeminiJson,
 } from '../parsers/gemini';

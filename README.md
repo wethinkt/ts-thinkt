@@ -12,7 +12,7 @@ npm install @wethinkt/ts-thinkt
 
 - **Object Model**: Type-safe representation of conversations, entries, and content blocks
 - **Parsers**: Parse JSONL files from Claude Code, Kimi, and Gemini
-- **API Client**: Type-safe client for the [go-thinkt](https://github.com/wethinkt/go-thinkt) API server
+- **API Client**: Two-layer type-safe client for the [go-thinkt](https://github.com/wethinkt/go-thinkt) API server (high-level domain types + low-level OpenAPI)
 - **Turn Analysis**: Group entries into logical conversation turns for visualization
 
 ## Usage
@@ -39,19 +39,26 @@ for (const entry of session.entries) {
 
 ### API Client
 
+Two layers are available — most consumers should use the high-level client:
+
 ```typescript
-import { createClient } from '@wethinkt/ts-thinkt';
+import { createClient } from '@wethinkt/ts-thinkt/api';
 
 const client = createClient({ baseUrl: 'http://localhost:7433' });
 
-// List all projects
+// Returns camelCase domain types
 const projects = await client.getProjects();
-
-// Get sessions for a project
 const sessions = await client.getSessions(projects[0].id);
+const { meta, entries, hasMore } = await client.getSession(sessions[0].fullPath!);
+```
 
-// Load a session with entries
-const session = await client.getSession(sessions[0].full_path);
+For raw OpenAPI access (snake_case types):
+
+```typescript
+import { createApiClient } from '@wethinkt/ts-thinkt/api';
+
+const apiClient = createApiClient({ baseUrl: 'http://localhost:7433' });
+const projects = await apiClient.getProjects(); // returns snake_case types
 ```
 
 ### Turn Analysis
@@ -71,7 +78,7 @@ const turns = builder.buildTurns(session.entries);
 ## Package Exports
 
 - `@wethinkt/ts-thinkt` - Main entry point with all exports
-- `@wethinkt/ts-thinkt/api` - API client only
+- `@wethinkt/ts-thinkt/api` - API clients (high-level + low-level) and adapters
 - `@wethinkt/ts-thinkt/parsers` - Parsers only
 
 ## Related

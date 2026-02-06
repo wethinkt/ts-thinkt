@@ -21,7 +21,7 @@ export type Source = components['schemas']['thinkt.Source'];
 export type APISourceInfo = components['schemas']['server.APISourceInfo'];
 export type ErrorResponse = components['schemas']['server.ErrorResponse'];
 
-export interface SessionResponse {
+export interface ApiSessionResponse {
   meta: SessionMeta;
   entries: Entry[];
   total: number;
@@ -103,7 +103,7 @@ function buildUrl(
 // API Client
 // ============================================
 
-export class ThinktClient {
+export class ThinktApiClient {
   private config: ThinktClientConfig;
 
   constructor(config?: Partial<ThinktClientConfig>) {
@@ -243,7 +243,7 @@ export class ThinktClient {
   async getSession(
     path: string,
     options?: { limit?: number; offset?: number }
-  ): Promise<SessionResponse> {
+  ): Promise<ApiSessionResponse> {
     type Response = paths['/sessions/{path}']['get']['responses'][200]['content']['application/json'];
     const encodedPath = encodeURIComponent(path);
     const url = buildUrl(
@@ -326,45 +326,41 @@ export class ThinktClient {
 // Singleton Instance
 // ============================================
 
-let defaultClient: ThinktClient | null = null;
+let defaultApiClient: ThinktApiClient | null = null;
 
 /**
- * Get or create the default API client instance
+ * Get or create the default low-level API client instance
  */
-export function getDefaultClient(): ThinktClient {
-  if (!defaultClient) {
-    defaultClient = new ThinktClient();
+export function getDefaultApiClient(): ThinktApiClient {
+  if (!defaultApiClient) {
+    defaultApiClient = new ThinktApiClient();
   }
-  return defaultClient;
+  return defaultApiClient;
 }
 
 /**
- * Configure the default API client
+ * Configure the default low-level API client
  */
-export function configureDefaultClient(config: Partial<ThinktClientConfig>): void {
-  if (!defaultClient) {
-    defaultClient = new ThinktClient(config);
+export function configureDefaultApiClient(config: Partial<ThinktClientConfig>): void {
+  if (!defaultApiClient) {
+    defaultApiClient = new ThinktApiClient(config);
   } else {
-    defaultClient.setConfig(config);
+    defaultApiClient.setConfig(config);
   }
 }
 
 /**
- * Reset the default client (useful for testing)
+ * Reset the default low-level client (useful for testing)
  */
-export function resetDefaultClient(): void {
-  defaultClient = null;
+export function resetDefaultApiClient(): void {
+  defaultApiClient = null;
 }
 
-// ============================================
-// Convenience Exports
-// ============================================
-
 /**
- * Create a new API client with the given configuration
+ * Create a new low-level API client with the given configuration
  */
-export function createClient(config?: Partial<ThinktClientConfig>): ThinktClient {
-  return new ThinktClient(config);
+export function createApiClient(config?: Partial<ThinktClientConfig>): ThinktApiClient {
+  return new ThinktApiClient(config);
 }
 
 // Re-export types for convenience
