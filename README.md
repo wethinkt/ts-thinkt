@@ -81,6 +81,24 @@ const turns = builder.buildTurns(session.entries);
 - `@wethinkt/ts-thinkt/api` - API clients (high-level + low-level) and adapters
 - `@wethinkt/ts-thinkt/parsers` - Parsers only
 
+## Development
+
+### Releasing
+
+This package is published to GitHub Packages. To release a new version:
+
+```bash
+# Bump version (patch/minor/major), commit, and tag
+npm version patch   # 0.1.3 → 0.1.4
+npm version minor   # 0.1.3 → 0.2.0
+npm version major   # 0.1.3 → 1.0.0
+
+# Push to trigger release
+git push --follow-tags
+```
+
+The GitHub Actions workflow will automatically publish to GitHub Packages when a tag is pushed.
+
 ## Related
 
 - [go-thinkt](https://github.com/wethinkt/go-thinkt) - Go implementation and API server

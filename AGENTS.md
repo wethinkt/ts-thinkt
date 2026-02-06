@@ -256,6 +256,20 @@ npm run api:generate
 
 ### Update Version
 
-1. Edit `version` in `package.json`
-2. Run `npm run build` to verify
-3. Tag release: `git tag v$(jq -r .version package.json)`
+Use `npm version` to bump the version, create a commit, and tag automatically:
+
+```bash
+# Patch release (bug fixes) - 0.1.3 → 0.1.4
+npm version patch
+
+# Minor release (new features) - 0.1.3 → 0.2.0
+npm version minor
+
+# Major release (breaking changes) - 0.1.3 → 1.0.0
+npm version major
+
+# Push to trigger release
+git push --follow-tags
+```
+
+The GitHub Actions workflow (`.github/workflows/release.yml`) will automatically publish to GitHub Packages when a version tag is pushed.
