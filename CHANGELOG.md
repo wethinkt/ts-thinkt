@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3 - 2026-02-06
+
+- Fix package-lock.json sync with vitest v4
+- Add GitHub Actions for CI, release, and coverage
+- Configure GitHub Packages publishing
+
 ## 0.1.0 - 2026-02-06
 
 - Initial release
