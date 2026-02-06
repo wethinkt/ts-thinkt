@@ -26,9 +26,12 @@ src/
 │   ├── claude.ts      # Claude Code JSONL parser
 │   ├── kimi.ts        # Kimi JSONL parser
 │   └── gemini.ts      # Gemini JSONL parser
-├── api/               # API client
-│   ├── client.ts      # ThinktClient implementation
-│   └── generated.ts   # OpenAPI-generated types (auto-generated)
+├── api/               # API client (two layers)
+│   ├── index.ts         # API module exports
+│   ├── thinkt-client.ts # ThinktClient — high-level, returns domain types (camelCase)
+│   ├── client.ts        # ThinktApiClient — low-level, returns raw OpenAPI types (snake_case)
+│   ├── adapters.ts      # snake_case ↔ camelCase conversion between API and domain types
+│   └── generated.ts     # OpenAPI-generated types (auto-generated from swagger.json)
 └── __tests__/         # Test files (mirror source structure)
 ```
 
@@ -41,7 +44,7 @@ index.ts (public API)
     ├── session.ts (session helpers)
     ├── turn.ts (turn analysis)
     ├── parsers/ (parser registry + implementations)
-    └── api/ (HTTP client)
+    └── api/ (two-layer HTTP client + adapters)
 ```
 
 ## Coding Conventions
@@ -130,13 +133,19 @@ Different sources have different conversation structures. The `TurnBuildingStrat
 - `KimiTurnStrategy`: Handles Kimi's tool role format
 - `GeminiTurnStrategy`: Handles Gemini's format
 
-### 4. API Client Design
+### 4. Two-Layer API Client
 
-The `ThinktClient` uses:
-- OpenAPI-generated types for type safety
+The API module provides two client layers:
+
+- **`ThinktClient`** (high-level, recommended) — wraps the low-level client and returns camelCase domain types (`Project`, `SessionMeta`, `Entry`). Exposes `.api` property for raw access.
+- **`ThinktApiClient`** (low-level) — thin fetch wrapper returning raw OpenAPI snake_case types. Uses OpenAPI-generated types for type safety.
+- **`adapters.ts`** — bidirectional conversion between API wire format (snake_case) and domain types (camelCase). Used internally by `ThinktClient`; also exported for manual use.
+
+Both layers support:
 - Fetch-based HTTP with timeout support
 - Streaming generators for paginated data
 - Custom error types (`ThinktAPIError`, `ThinktNetworkError`)
+- Singleton pattern via `configureDefaultClient()` / `configureDefaultApiClient()`
 
 ## Extending the Library
 
@@ -217,7 +226,7 @@ The package uses subpath exports:
 
 Consumers can import:
 - `import { parse } from '@wethinkt/ts-thinkt'` - Everything
-- `import { createClient } from '@wethinkt/ts-thinkt/api'` - API client only
+- `import { createClient, createApiClient } from '@wethinkt/ts-thinkt/api'` - API clients only
 - `import { claudeParser } from '@wethinkt/ts-thinkt/parsers'` - Parsers only
 
 ## Related Projects

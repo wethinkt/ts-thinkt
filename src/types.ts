@@ -271,6 +271,8 @@ export interface SessionMeta {
   source: Source;
   /** Which workspace */
   workspaceId?: string;
+  /** Number of chunk files (0=unknown, 1=single, 2+=chunked) */
+  chunkCount?: number;
   /** Title derived from content or filename */
   title?: string;
   /** Duration in milliseconds */

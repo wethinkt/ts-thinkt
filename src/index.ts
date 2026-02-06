@@ -224,21 +224,27 @@ export type {
 // ============================================
 
 export {
-  // Client
+  // High-level client (domain types)
   ThinktClient,
-  ThinktAPIError,
-  ThinktNetworkError,
   createClient,
   getDefaultClient,
   configureDefaultClient,
   resetDefaultClient,
+
+  // Low-level client (raw API types)
+  ThinktApiClient,
+  ThinktAPIError,
+  ThinktNetworkError,
+  createApiClient,
+  getDefaultApiClient,
 } from './api';
 
 export type {
   ThinktClientConfig,
   SessionResponse,
+  ApiSessionResponse,
   APISourceInfo,
   ErrorResponse,
-  APIPaths,
-  APIComponents,
 } from './api';
+
+export type { paths as APIPaths, components as APIComponents } from './api';

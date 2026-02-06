@@ -6,15 +6,9 @@
  */
 
 import type {
-  Source,
   SessionMeta,
   Entry,
-  Role,
   ContentBlock,
-  TextBlock,
-  ThinkingBlock,
-  ToolUseBlock,
-  ToolResultBlock,
   TokenUsage,
 } from '../types';
 import type { Parser, ParseResult, ParserOptions } from './types';
@@ -268,7 +262,7 @@ function extractSessionMeta(raw: RawGeminiSession, entries: Entry[]): SessionMet
 // Parser Implementation
 // ============================================
 
-export function createGeminiParser(options?: ParserOptions): Parser {
+export function createGeminiParser(_options?: ParserOptions): Parser {
   return {
     source: 'gemini',
 

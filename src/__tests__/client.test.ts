@@ -1,25 +1,25 @@
 /**
- * API Client Tests
+ * Low-Level API Client Tests
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
-  ThinktClient,
+  ThinktApiClient,
   ThinktAPIError,
   ThinktNetworkError,
-  createClient,
-  getDefaultClient,
-  resetDefaultClient,
-  configureDefaultClient,
+  createApiClient,
+  getDefaultApiClient,
+  resetDefaultApiClient,
+  configureDefaultApiClient,
   type Entry,
 } from '../api/client';
 
-describe('ThinktClient', () => {
+describe('ThinktApiClient', () => {
   let mockFetch: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     mockFetch = vi.fn();
-    resetDefaultClient();
+    resetDefaultApiClient();
   });
 
   afterEach(() => {
@@ -28,31 +28,31 @@ describe('ThinktClient', () => {
 
   describe('Configuration', () => {
     it('should create client with default config', () => {
-      const client = new ThinktClient();
+      const client = new ThinktApiClient();
       const config = client.getConfig();
-      
+
       expect(config.baseUrl).toBe('http://localhost:7433');
       expect(config.apiVersion).toBe('/api/v1');
       expect(config.timeout).toBe(30000);
     });
 
     it('should create client with custom config', () => {
-      const client = new ThinktClient({
+      const client = new ThinktApiClient({
         baseUrl: 'http://example.com',
         apiVersion: '/api/v2',
         timeout: 5000,
       });
       const config = client.getConfig();
-      
+
       expect(config.baseUrl).toBe('http://example.com');
       expect(config.apiVersion).toBe('/api/v2');
       expect(config.timeout).toBe(5000);
     });
 
     it('should update config with setConfig', () => {
-      const client = new ThinktClient();
+      const client = new ThinktApiClient();
       client.setConfig({ baseUrl: 'http://updated.com' });
-      
+
       expect(client.getConfig().baseUrl).toBe('http://updated.com');
     });
   });
@@ -71,7 +71,7 @@ describe('ThinktClient', () => {
         json: async () => mockSources,
       });
 
-      const client = new ThinktClient({ fetch: mockFetch });
+      const client = new ThinktApiClient({ fetch: mockFetch });
       const sources = await client.getSources();
 
       expect(sources).toHaveLength(2);
@@ -88,7 +88,7 @@ describe('ThinktClient', () => {
         json: async () => ({}),
       });
 
-      const client = new ThinktClient({ fetch: mockFetch });
+      const client = new ThinktApiClient({ fetch: mockFetch });
       const sources = await client.getSources();
 
       expect(sources).toEqual([]);
@@ -109,7 +109,7 @@ describe('ThinktClient', () => {
         json: async () => mockProjects,
       });
 
-      const client = new ThinktClient({ fetch: mockFetch });
+      const client = new ThinktApiClient({ fetch: mockFetch });
       const projects = await client.getProjects();
 
       expect(projects).toHaveLength(2);
@@ -122,7 +122,7 @@ describe('ThinktClient', () => {
         json: async () => ({ projects: [] }),
       });
 
-      const client = new ThinktClient({ fetch: mockFetch });
+      const client = new ThinktApiClient({ fetch: mockFetch });
       await client.getProjects('claude');
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -146,7 +146,7 @@ describe('ThinktClient', () => {
         json: async () => mockSessions,
       });
 
-      const client = new ThinktClient({ fetch: mockFetch });
+      const client = new ThinktApiClient({ fetch: mockFetch });
       const sessions = await client.getSessions('my-project');
 
       expect(sessions).toHaveLength(2);
@@ -162,7 +162,7 @@ describe('ThinktClient', () => {
         json: async () => ({ sessions: [] }),
       });
 
-      const client = new ThinktClient({ fetch: mockFetch });
+      const client = new ThinktApiClient({ fetch: mockFetch });
       await client.getSessions('path with spaces');
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -186,7 +186,7 @@ describe('ThinktClient', () => {
         json: async () => mockSession,
       });
 
-      const client = new ThinktClient({ fetch: mockFetch });
+      const client = new ThinktApiClient({ fetch: mockFetch });
       const session = await client.getSession('/path/to/session.json');
 
       expect(session.meta.id).toBe('sess1');
@@ -208,7 +208,7 @@ describe('ThinktClient', () => {
         }),
       });
 
-      const client = new ThinktClient({ fetch: mockFetch });
+      const client = new ThinktApiClient({ fetch: mockFetch });
       await client.getSession('/path/to/session.json', { limit: 50, offset: 10 });
 
       const callUrl = mockFetch.mock.calls[0][0] as string;
@@ -242,9 +242,9 @@ describe('ThinktClient', () => {
           }),
         });
 
-      const client = new ThinktClient({ fetch: mockFetch });
+      const client = new ThinktApiClient({ fetch: mockFetch });
       const entries: Entry[] = [];
-      
+
       for await (const entry of client.streamSessionEntries('/path/to/session.json', 1)) {
         entries.push(entry);
       }
@@ -271,7 +271,7 @@ describe('ThinktClient', () => {
           }),
         });
 
-      const client = new ThinktClient({ fetch: mockFetch });
+      const client = new ThinktApiClient({ fetch: mockFetch });
       const entries = await client.getAllSessionEntries('/path/to/session.json');
 
       expect(entries).toHaveLength(2);
@@ -287,10 +287,10 @@ describe('ThinktClient', () => {
         json: async () => ({ error: 'Server Error', message: 'Something went wrong' }),
       });
 
-      const client = new ThinktClient({ fetch: mockFetch });
+      const client = new ThinktApiClient({ fetch: mockFetch });
 
       await expect(client.getSources()).rejects.toThrow(ThinktAPIError);
-      
+
       // Reset mock for message check
       mockFetch.mockResolvedValueOnce({
         ok: false,
@@ -298,14 +298,14 @@ describe('ThinktClient', () => {
         statusText: 'Internal Server Error',
         json: async () => ({ error: 'Server Error', message: 'Something went wrong' }),
       });
-      
+
       await expect(client.getSources()).rejects.toThrow('Something went wrong');
     });
 
     it('should throw ThinktNetworkError on fetch failure', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network failure'));
 
-      const client = new ThinktClient({ fetch: mockFetch });
+      const client = new ThinktApiClient({ fetch: mockFetch });
 
       await expect(client.getSources()).rejects.toThrow(ThinktNetworkError);
     });
@@ -317,40 +317,40 @@ describe('ThinktClient', () => {
         return error;
       })());
 
-      const client = new ThinktClient({ fetch: mockFetch, timeout: 5 });
+      const client = new ThinktApiClient({ fetch: mockFetch, timeout: 5 });
 
       await expect(client.getSources()).rejects.toThrow(ThinktNetworkError);
     });
   });
 });
 
-describe('createClient', () => {
+describe('createApiClient', () => {
   it('should create a new client instance', () => {
-    const client = createClient({ baseUrl: 'http://custom' });
+    const client = createApiClient({ baseUrl: 'http://custom' });
     expect(client.getConfig().baseUrl).toBe('http://custom');
   });
 });
 
-describe('getDefaultClient', () => {
+describe('getDefaultApiClient', () => {
   beforeEach(() => {
-    resetDefaultClient();
+    resetDefaultApiClient();
   });
 
   it('should return same instance on multiple calls', () => {
-    const client1 = getDefaultClient();
-    const client2 = getDefaultClient();
+    const client1 = getDefaultApiClient();
+    const client2 = getDefaultApiClient();
     expect(client1).toBe(client2);
   });
 });
 
-describe('configureDefaultClient', () => {
+describe('configureDefaultApiClient', () => {
   beforeEach(() => {
-    resetDefaultClient();
+    resetDefaultApiClient();
   });
 
   it('should configure default client', () => {
-    configureDefaultClient({ baseUrl: 'http://configured' });
-    const client = getDefaultClient();
+    configureDefaultApiClient({ baseUrl: 'http://configured' });
+    const client = getDefaultApiClient();
     expect(client.getConfig().baseUrl).toBe('http://configured');
   });
 });
