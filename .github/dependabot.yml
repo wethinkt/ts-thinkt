@@ -12,5 +12,17 @@ updates:
           - '@typescript-eslint/*'
           - 'eslint'
           - 'typescript-eslint'
-          - 'vitest'
           - 'typescript'
+          - 'openapi-typescript'
+          - 'swagger2openapi'
+      # Keep vitest packages together - they must be updated as a unit
+      vitest:
+        patterns:
+          - 'vitest'
+          - '@vitest/*'
+    ignore:
+      # Ignore major version updates for vitest ecosystem (manual update required)
+      - dependency-name: 'vitest'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@vitest/*'
+        update-types: ['version-update:semver-major']

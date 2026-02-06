@@ -5,7 +5,7 @@ TypeScript library for parsing and working with LLM conversation traces from mul
 ## Installation
 
 ```bash
-npm install @wethinkt/ts-thinkt
+npm install @wethinkt/ts-thinkt --registry=https://npm.pkg.github.com
 ```
 
 ## Features
