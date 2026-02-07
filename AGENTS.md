@@ -104,7 +104,51 @@ npm run api:generate    # Generate TypeScript types from OpenAPI
 
 ## Key Design Decisions
 
-### 1. Content Block Model
+### 1. Entry Provenance (Multi-Agent Support)
+
+Entries include agent provenance fields for multi-agent/team sessions:
+
+```typescript
+interface Entry {
+  // ... other fields ...
+  
+  /** Resolved agent name (e.g., "researcher") */
+  agentId?: string;
+  
+  /** Raw source identifier (e.g., "ab17e07") for correlation */
+  sourceAgentId?: string;
+}
+```
+
+Helper functions provide type-safe access:
+- `hasAgent(entry)` - Check if entry has agent attribution
+- `getAgentId(entry)` - Get resolved agent name
+- `hasSourceAgent(entry)` - Check if raw source ID exists
+- `getSourceAgentId(entry)` - Get raw source identifier
+- `isFromAgent(entry)` - Check if from any agent context
+
+These are exported from the main package:
+```typescript
+import { hasAgent, getAgentId, isFromAgent } from '@wethinkt/ts-thinkt';
+```
+
+### 2. Project Path Tracking
+
+Projects track path existence and storage location:
+
+```typescript
+interface Project {
+  // ... other fields ...
+  
+  /** Root storage path (e.g., ~/.claude or ~/.kimi) */
+  sourceBasePath?: string;
+  
+  /** Whether the project directory still exists */
+  pathExists?: boolean;
+}
+```
+
+### 3. Content Block Model
 
 All entry content is stored as an array of `ContentBlock` objects:
 
@@ -116,7 +160,7 @@ interface ContentBlockBase {
 
 This unified model supports multiple LLM formats without losing information.
 
-### 2. Parser Registry Pattern
+### 4. Parser Registry Pattern
 
 Parsers are registered in a central `ParserRegistry`. Auto-detection selects the appropriate parser based on content format.
 
@@ -124,7 +168,7 @@ Parsers are registered in a central `ParserRegistry`. Auto-detection selects the
 const session = parse(jsonlContent);  // Auto-detects source
 ```
 
-### 3. Turn Analysis Strategy Pattern
+### 5. Turn Analysis Strategy Pattern
 
 Different sources have different conversation structures. The `TurnBuildingStrategy` interface allows source-specific turn grouping:
 
@@ -133,7 +177,7 @@ Different sources have different conversation structures. The `TurnBuildingStrat
 - `KimiTurnStrategy`: Handles Kimi's tool role format
 - `GeminiTurnStrategy`: Handles Gemini's format
 
-### 4. Two-Layer API Client
+### 6. Two-Layer API Client
 
 The API module provides two client layers:
 
@@ -235,6 +279,17 @@ Consumers can import:
 - [thinking-trace-viewer](https://github.com/brain-stm-org/thinking-trace-viewer) - 3D visualization
 
 ## Common Tasks
+
+### Update README Badges
+
+The README includes status badges that may need updating:
+
+| Badge | URL | Update When |
+|-------|-----|-------------|
+| CI | `github.com/wethinkt/ts-thinkt/actions/workflows/ci.yml/badge.svg` | Workflow name changes |
+| Package | `github.com/v/tag/wethinkt/ts-thinkt?label=package` | Auto-updates on new tags |
+| License | `img.shields.io/badge/License-MIT-yellow.svg` | License changes |
+| TypeScript | `img.shields.io/badge/TypeScript-5.7-blue.svg` | TypeScript version changes |
 
 ### Regenerate API Types
 
