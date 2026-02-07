@@ -41,17 +41,25 @@ interface KimiRawContentBlock {
   type: string;
   text?: string;
   thinking?: string;
+  think?: string;
   signature?: string;
   tool_use_id?: string;
   content?: string | KimiRawContentBlock[];
   is_error?: boolean;
 }
 
-/** Kimi tool call in assistant messages */
+/** Kimi tool call in assistant messages (OpenAI function-calling format) */
 interface KimiToolCall {
   id: string;
-  name: string;
+  type?: string;
+  /** Flat format (legacy) */
+  name?: string;
   input?: unknown;
+  /** OpenAI function-calling format */
+  function?: {
+    name: string;
+    arguments?: string;
+  };
 }
 
 /** Options for Kimi parser */
@@ -147,9 +155,10 @@ export function parseContentBlock(raw: unknown): ContentBlock | null {
       };
 
     case 'thinking':
+    case 'think':
       return {
         type: 'thinking',
-        thinking: block.thinking ?? '',
+        thinking: block.thinking ?? block.think ?? '',
         signature: block.signature,
       };
 
@@ -235,30 +244,60 @@ export function parseEntry(raw: KimiRawEntry, lineNumber: number): Entry | null 
         entry.text = extractTextFromBlocks(blocks);
       }
 
-      // Parse tool calls
+      // Parse tool calls (OpenAI function-calling format)
       if (Array.isArray(raw.tool_calls)) {
         for (const tc of raw.tool_calls) {
+          let toolName = '';
+          let toolInput: unknown = {};
+
+          // OpenAI format: {function: {name, arguments}}
+          if (tc.function) {
+            toolName = tc.function.name;
+            if (tc.function.arguments) {
+              try {
+                toolInput = JSON.parse(tc.function.arguments);
+              } catch {
+                toolInput = tc.function.arguments; // fallback to raw string
+              }
+            }
+          } else {
+            // Flat format fallback: {name, input}
+            toolName = tc.name ?? '';
+            toolInput = tc.input ?? {};
+          }
+
           entry.contentBlocks.push({
             type: 'tool_use',
             toolUseId: tc.id,
-            toolName: tc.name,
-            toolInput: tc.input ?? {},
+            toolName,
+            toolInput,
           });
         }
       }
       break;
 
-    case 'tool':
-      // Tool result entry
+    case 'tool': {
+      // Tool result entry — content can be string or array
+      let toolResult = '';
+      if (typeof raw.content === 'string') {
+        toolResult = raw.content;
+      } else if (Array.isArray(raw.content)) {
+        toolResult = (raw.content as KimiRawContentBlock[])
+          .filter((c) => typeof c === 'object' && c !== null)
+          .map((c) => c.text ?? '')
+          .filter(Boolean)
+          .join('');
+      }
       entry.contentBlocks = [
         {
           type: 'tool_result',
           toolUseId: raw.tool_call_id ?? '',
-          toolResult: typeof raw.content === 'string' ? raw.content : '',
+          toolResult,
           isError: false,
         },
       ];
       break;
+    }
 
     case 'system':
       if (typeof raw.content === 'string') {
