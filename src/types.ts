@@ -209,6 +209,10 @@ export interface Entry {
   source: Source;
   /** Which machine/workspace */
   workspaceId?: string;
+  /** Resolved agent name (e.g., "researcher") for team/multi-agent sessions */
+  agentId?: string;
+  /** Raw source identifier (e.g., "ab17e07") for correlation with team config */
+  sourceAgentId?: string;
 
   // Content
   /** Content blocks (structured content) */
@@ -335,6 +339,10 @@ export interface Project {
   source: Source;
   /** Which workspace */
   workspaceId?: string;
+  /** Root storage path for this source (e.g., ~/.claude or ~/.kimi) */
+  sourceBasePath?: string;
+  /** Whether the project directory still exists on disk */
+  pathExists?: boolean;
 }
 
 // ============================================
