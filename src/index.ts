@@ -101,6 +101,13 @@ export {
   isAssistantResponse,
   hasError,
 
+  // Agent/Team
+  hasAgent,
+  getAgentId,
+  hasSourceAgent,
+  getSourceAgentId,
+  isFromAgent,
+
   // Utilities
   getTotalTokens,
   countBlocksByType,

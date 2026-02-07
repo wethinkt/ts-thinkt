@@ -144,6 +144,8 @@ export function convertApiProject(project: ApiProject): Project {
     lastModified: project.last_modified ? new Date(project.last_modified) : undefined,
     source: convertSource(project.source),
     workspaceId: project.workspace_id,
+    sourceBasePath: project.source_base_path,
+    pathExists: project.path_exists ?? true,
   };
 }
 
@@ -204,6 +206,8 @@ export function convertApiEntry(entry: ApiEntry): Entry {
     cwd: entry.cwd,
     isCheckpoint: entry.is_checkpoint ?? false,
     isSidechain: entry.is_sidechain ?? false,
+    agentId: entry.agent_id,
+    sourceAgentId: entry.source_agent_id,
     metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
   };
 }
@@ -241,6 +245,8 @@ export function convertToApiEntry(entry: Entry): ApiEntry {
     cwd: entry.cwd,
     is_checkpoint: entry.isCheckpoint,
     is_sidechain: entry.isSidechain,
+    agent_id: entry.agentId,
+    source_agent_id: entry.sourceAgentId,
     workspace_id: entry.metadata?.workspaceId as string | undefined,
     metadata: entry.metadata,
   };

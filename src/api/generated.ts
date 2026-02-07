@@ -293,6 +293,10 @@ export interface components {
             uuid?: string;
             /** @description Which machine/host */
             workspace_id?: string;
+            /** @description Resolved agent name for team/multi-agent sessions */
+            agent_id?: string;
+            /** @description Raw source identifier for team correlation */
+            source_agent_id?: string;
         };
         "thinkt.Project": {
             /** @description Human-readable path */
@@ -308,6 +312,10 @@ export interface components {
             source?: components["schemas"]["thinkt.Source"];
             /** @description Which machine/host */
             workspace_id?: string;
+            /** @description Root storage path for this source */
+            source_base_path?: string;
+            /** @description Whether the project directory still exists on disk */
+            path_exists?: boolean;
         };
         /** @enum {string} */
         "thinkt.Role": "user" | "assistant" | "tool" | "system" | "summary" | "progress" | "checkpoint";

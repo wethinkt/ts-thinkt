@@ -201,3 +201,46 @@ export function getBlocksInDisplayOrder(entry: Entry): ContentBlock[] {
     (a, b) => (order[a.type] ?? 99) - (order[b.type] ?? 99)
   );
 }
+
+
+// ============================================
+// Agent/Team Helpers
+// ============================================
+
+/**
+ * Check if entry has an agent ID (for team/multi-agent sessions)
+ */
+export function hasAgent(entry: Entry): boolean {
+  return entry.agentId !== undefined && entry.agentId !== '';
+}
+
+/**
+ * Get the resolved agent name (e.g., "researcher")
+ * Returns undefined if not set
+ */
+export function getAgentId(entry: Entry): string | undefined {
+  return entry.agentId;
+}
+
+/**
+ * Check if entry has a source agent ID (raw identifier from source)
+ */
+export function hasSourceAgent(entry: Entry): boolean {
+  return entry.sourceAgentId !== undefined && entry.sourceAgentId !== '';
+}
+
+/**
+ * Get the raw source agent identifier (e.g., "ab17e07")
+ * Used for correlating team config with session data
+ */
+export function getSourceAgentId(entry: Entry): string | undefined {
+  return entry.sourceAgentId;
+}
+
+/**
+ * Check if entry is from a team/agent context
+ * Returns true if either agentId or sourceAgentId is present
+ */
+export function isFromAgent(entry: Entry): boolean {
+  return hasAgent(entry) || hasSourceAgent(entry);
+}
