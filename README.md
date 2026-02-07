@@ -1,5 +1,10 @@
 # ts-thinkt
 
+[![CI](https://github.com/wethinkt/ts-thinkt/actions/workflows/ci.yml/badge.svg)](https://github.com/wethinkt/ts-thinkt/actions/workflows/ci.yml)
+[![GitHub Package](https://img.shields.io/github/v/tag/wethinkt/ts-thinkt?label=package&color=blue)](https://github.com/wethinkt/ts-thinkt/pkgs/npm/ts-thinkt)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://www.typescriptlang.org/)
+
 TypeScript library for parsing and working with LLM conversation traces from multiple sources (Claude, Kimi, Gemini).
 
 ## Installation
@@ -14,6 +19,8 @@ npm install @wethinkt/ts-thinkt --registry=https://npm.pkg.github.com
 - **Parsers**: Parse JSONL files from Claude Code, Kimi, and Gemini
 - **API Client**: Two-layer type-safe client for the [go-thinkt](https://github.com/wethinkt/go-thinkt) API server (high-level domain types + low-level OpenAPI)
 - **Turn Analysis**: Group entries into logical conversation turns for visualization
+- **Multi-Agent Support**: Entry provenance with agent IDs for team/swarm sessions
+- **Project Metadata**: Track project path existence and source storage locations
 
 ## Usage
 
@@ -73,6 +80,31 @@ console.log(`${analysis.turns.length} turns, ${analysis.metrics.totalThinkingMs}
 // Custom turn building
 const builder = createTurnBuilder(session.meta.source);
 const turns = builder.buildTurns(session.entries);
+```
+
+### Multi-Agent / Team Support
+
+For sessions with multiple agents (Claude Code teams/swarms):
+
+```typescript
+import { hasAgent, getAgentId, isFromAgent } from '@wethinkt/ts-thinkt';
+
+for (const entry of session.entries) {
+  if (isFromAgent(entry)) {
+    console.log(`Agent: ${getAgentId(entry)}`);
+    console.log(`Source ID: ${entry.sourceAgentId}`); // Raw ID for correlation
+  }
+}
+```
+
+### Project Path Tracking
+
+Check if a project directory still exists and get storage location:
+
+```typescript
+const project = await client.getProject(projectId);
+console.log(`Path exists: ${project.pathExists}`);
+console.log(`Storage: ${project.sourceBasePath}`); // e.g., ~/.claude
 ```
 
 ## Package Exports
