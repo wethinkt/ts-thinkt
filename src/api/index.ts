@@ -49,6 +49,7 @@ export type {
   ThinktClientConfig,
   ApiSessionResponse,
   APISourceInfo,
+  AppInfo,
   ErrorResponse,
 } from './client';
 

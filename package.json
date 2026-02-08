@@ -32,8 +32,9 @@
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "typecheck": "tsc --noEmit",
+    "api:download": "curl -L -o src/api/swagger.json https://raw.githubusercontent.com/wethinkt/go-thinkt/main/internal/server/docs/swagger.json",
     "api:convert": "swagger2openapi src/api/swagger.json -o src/api/openapi.json",
-    "api:generate": "npm run api:convert && openapi-typescript src/api/openapi.json -o src/api/generated.ts"
+    "api:generate": "npm run api:download && npm run api:convert && openapi-typescript src/api/openapi.json -o src/api/generated.ts"
   },
   "keywords": [
     "llm",
