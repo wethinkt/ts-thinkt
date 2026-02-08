@@ -4,6 +4,134 @@
  */
 
 export interface paths {
+    "/open-in": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Open a path in an application
+         * @description Opens the specified path in an allowed application (e.g., Finder, VS Code)
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description Open-in request */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["server.OpenInRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.OpenInResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/open-in/apps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List allowed apps for open-in
+         * @description Returns the list of enabled applications that can be used with open-in
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.AllowedAppsResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/projects": {
         parameters: {
             query?: never;
@@ -34,6 +162,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["server.ProjectsResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
                     };
                 };
                 /** @description Internal Server Error */
@@ -89,6 +226,15 @@ export interface paths {
                 };
                 /** @description Bad Request */
                 400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -161,6 +307,15 @@ export interface paths {
                         "application/json": components["schemas"]["server.ErrorResponse"];
                     };
                 };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
                 /** @description Internal Server Error */
                 500: {
                     headers: {
@@ -209,6 +364,311 @@ export interface paths {
                         "application/json": components["schemas"]["server.SourcesResponse"];
                     };
                 };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/teams": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List all teams
+         * @description Returns all Claude Code teams discovered on this machine
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.TeamsResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/teams/{teamName}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get team details
+         * @description Returns team details including resolved member-to-session mappings
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Team name */
+                    teamName: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["thinkt.Team"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/teams/{teamName}/members/{memberName}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List team member messages
+         * @description Returns inbox messages for a specific team member
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Team name */
+                    teamName: string;
+                    /** @description Member name */
+                    memberName: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.TeamMessagesResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/teams/{teamName}/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List team tasks
+         * @description Returns the shared task board for a team
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Team name */
+                    teamName: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.TeamTasksResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/themes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List available themes
+         * @description Returns all available themes (built-in and user themes) with their color definitions
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ThemesResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
             };
         };
         put?: never;
@@ -223,14 +683,32 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        "config.AppInfo": {
+            enabled?: boolean;
+            id?: string;
+            name?: string;
+        };
         "server.APISourceInfo": {
             available?: boolean;
             base_path?: string;
             name?: string;
         };
+        "server.AllowedAppsResponse": {
+            apps?: components["schemas"]["config.AppInfo"][];
+        };
         "server.ErrorResponse": {
             error?: string;
             message?: string;
+        };
+        "server.OpenInRequest": {
+            /** @description App ID (e.g., "finder", "vscode", "cursor") */
+            app?: string;
+            /** @description Path to open */
+            path?: string;
+        };
+        "server.OpenInResponse": {
+            message?: string;
+            success?: boolean;
         };
         "server.ProjectsResponse": {
             projects?: components["schemas"]["thinkt.Project"][];
@@ -246,6 +724,58 @@ export interface components {
         };
         "server.SourcesResponse": {
             sources?: components["schemas"]["server.APISourceInfo"][];
+        };
+        "server.TeamMessagesResponse": {
+            messages?: components["schemas"]["thinkt.TeamMessage"][];
+        };
+        "server.TeamTasksResponse": {
+            tasks?: components["schemas"]["thinkt.TeamTask"][];
+        };
+        "server.TeamsResponse": {
+            teams?: components["schemas"]["thinkt.Team"][];
+        };
+        "server.ThemeColors": {
+            /** @description UI chrome */
+            accent?: string;
+            assistant_block?: components["schemas"]["server.ThemeStyle"];
+            assistant_label?: components["schemas"]["server.ThemeStyle"];
+            border_active?: string;
+            border_inactive?: string;
+            /** @description Confirm dialog */
+            confirm_prompt?: components["schemas"]["server.ThemeStyle"];
+            confirm_selected?: components["schemas"]["server.ThemeStyle"];
+            confirm_unselected?: components["schemas"]["server.ThemeStyle"];
+            text_muted?: components["schemas"]["server.ThemeStyle"];
+            /** @description Text styles */
+            text_primary?: components["schemas"]["server.ThemeStyle"];
+            text_secondary?: components["schemas"]["server.ThemeStyle"];
+            thinking_block?: components["schemas"]["server.ThemeStyle"];
+            thinking_label?: components["schemas"]["server.ThemeStyle"];
+            tool_call_block?: components["schemas"]["server.ThemeStyle"];
+            tool_label?: components["schemas"]["server.ThemeStyle"];
+            tool_result_block?: components["schemas"]["server.ThemeStyle"];
+            /** @description Conversation blocks */
+            user_block?: components["schemas"]["server.ThemeStyle"];
+            /** @description Labels */
+            user_label?: components["schemas"]["server.ThemeStyle"];
+        };
+        "server.ThemeInfo": {
+            active?: boolean;
+            colors?: components["schemas"]["server.ThemeColors"];
+            description?: string;
+            embedded?: boolean;
+            name?: string;
+        };
+        "server.ThemeStyle": {
+            bg?: string;
+            bold?: boolean;
+            fg?: string;
+            italic?: boolean;
+            underline?: boolean;
+        };
+        "server.ThemesResponse": {
+            active?: string;
+            themes?: components["schemas"]["server.ThemeInfo"][];
         };
         "thinkt.ContentBlock": {
             is_error?: boolean;
@@ -267,6 +797,8 @@ export interface components {
             type?: string;
         };
         "thinkt.Entry": {
+            /** @description Resolved agent name (e.g., "researcher") */
+            agent_id?: string;
             /** @description Content (one of these will be set) */
             content_blocks?: components["schemas"]["thinkt.ContentBlock"][];
             cwd?: string;
@@ -285,6 +817,8 @@ export interface components {
             role?: components["schemas"]["thinkt.Role"];
             /** @description Provenance - where this entry came from */
             source?: components["schemas"]["thinkt.Source"];
+            /** @description Raw source identifier (e.g., "ab17e07") */
+            source_agent_id?: string;
             /** @description Simple text shortcut */
             text?: string;
             timestamp?: string;
@@ -293,10 +827,6 @@ export interface components {
             uuid?: string;
             /** @description Which machine/host */
             workspace_id?: string;
-            /** @description Resolved agent name for team/multi-agent sessions */
-            agent_id?: string;
-            /** @description Raw source identifier for team correlation */
-            source_agent_id?: string;
         };
         "thinkt.Project": {
             /** @description Human-readable path */
@@ -307,15 +837,15 @@ export interface components {
             name?: string;
             /** @description Full filesystem path */
             path?: string;
+            /** @description Whether the project directory still exists on disk */
+            path_exists?: boolean;
             session_count?: number;
             /** @description Which tool */
             source?: components["schemas"]["thinkt.Source"];
-            /** @description Which machine/host */
-            workspace_id?: string;
             /** @description Root storage path for this source */
             source_base_path?: string;
-            /** @description Whether the project directory still exists on disk */
-            path_exists?: boolean;
+            /** @description Which machine/host */
+            workspace_id?: string;
         };
         /** @enum {string} */
         "thinkt.Role": "user" | "assistant" | "tool" | "system" | "summary" | "progress" | "checkpoint";
@@ -342,7 +872,69 @@ export interface components {
             workspace_id?: string;
         };
         /** @enum {string} */
-        "thinkt.Source": "kimi" | "claude";
+        "thinkt.Source": "thinkt" | "claude" | "copilot" | "gemini" | "kimi";
+        "thinkt.Team": {
+            created_at?: string;
+            description?: string;
+            /** @description LeadAgentID is the config-format agent ID (e.g., "team-lead@myteam"). */
+            lead_agent_id?: string;
+            /**
+             * @description LeadSessionID is the UUID of the team lead's session.
+             *     Subagent sessions live under projects/{projectDir}/{LeadSessionID}/subagents/
+             */
+            lead_session_id?: string;
+            members?: components["schemas"]["thinkt.TeamMember"][];
+            /** @description Name is the team identifier (directory name under ~/.claude/teams/). */
+            name?: string;
+            /** @description Source provenance */
+            source?: components["schemas"]["thinkt.Source"];
+            status?: components["schemas"]["thinkt.TeamStatus"];
+            workspace_id?: string;
+        };
+        "thinkt.TeamMember": {
+            /** @description AgentID is the config-format ID (e.g., "researcher@myteam"). */
+            agent_id?: string;
+            /** @description AgentType classifies the member (e.g., "team-lead", "general-purpose"). */
+            agent_type?: string;
+            color?: string;
+            cwd?: string;
+            joined_at?: string;
+            model?: string;
+            /** @description Name is the short display name (e.g., "researcher"). */
+            name?: string;
+            /**
+             * @description SessionPath is the path to this member's subagent JSONL file.
+             *     Populated during discovery. Empty for unresolved members.
+             */
+            session_path?: string;
+            /**
+             * @description SourceAgentID is the short hash used in session JSONL entries
+             *     (e.g., "ab17e07"). Populated when correlating team config with
+             *     session data. May be empty if not yet resolved.
+             */
+            source_agent_id?: string;
+        };
+        "thinkt.TeamMessage": {
+            color?: string;
+            from?: string;
+            read?: boolean;
+            text?: string;
+            timestamp?: string;
+        };
+        /** @enum {string} */
+        "thinkt.TeamStatus": "active" | "inactive";
+        "thinkt.TeamTask": {
+            active_form?: string;
+            blocked_by?: string[];
+            blocks?: string[];
+            description?: string;
+            id?: string;
+            is_internal?: boolean;
+            owner?: string;
+            /** @description "pending", "in_progress", "completed", "deleted" */
+            status?: string;
+            subject?: string;
+        };
         "thinkt.TokenUsage": {
             cache_creation_input_tokens?: number;
             cache_read_input_tokens?: number;

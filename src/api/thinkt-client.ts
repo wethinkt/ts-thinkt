@@ -7,7 +7,7 @@
  * For raw OpenAPI access, use ThinktApiClient directly or the `.api` property.
  */
 
-import type { ThinktClientConfig, APISourceInfo } from './client';
+import type { ThinktClientConfig, APISourceInfo, AppInfo } from './client';
 import { ThinktApiClient } from './client';
 import type { Project, SessionMeta, Entry } from '../types';
 import {
@@ -86,6 +86,11 @@ export class ThinktClient {
   /** Open a path in an external application */
   async openIn(app: string, path: string): Promise<void> {
     return this._api.openIn(app, path);
+  }
+
+  /** List allowed apps for the open-in feature */
+  async getOpenInApps(): Promise<AppInfo[]> {
+    return this._api.getOpenInApps();
   }
 
   /** Stream all entries from a session (handles pagination) */

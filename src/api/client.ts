@@ -19,6 +19,7 @@ export type TokenUsage = components['schemas']['thinkt.TokenUsage'];
 export type Role = components['schemas']['thinkt.Role'];
 export type Source = components['schemas']['thinkt.Source'];
 export type APISourceInfo = components['schemas']['server.APISourceInfo'];
+export type AppInfo = components['schemas']['config.AppInfo'];
 export type ErrorResponse = components['schemas']['server.ErrorResponse'];
 
 export interface ApiSessionResponse {
@@ -282,6 +283,18 @@ export class ThinktApiClient {
     if (response.error) {
       throw new Error(response.error);
     }
+  }
+
+  /**
+   * List allowed apps for the open-in feature
+   *
+   * GET /open-in/apps
+   */
+  async getOpenInApps(): Promise<AppInfo[]> {
+    type Response = paths['/open-in/apps']['get']['responses'][200]['content']['application/json'];
+    const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/open-in/apps');
+    const response = await this.fetchWithTimeout<Response>(url);
+    return response.apps ?? [];
   }
 
   /**
