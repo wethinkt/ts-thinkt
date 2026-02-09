@@ -18,6 +18,10 @@
  * // Load a session with entries
  * const { meta, entries, hasMore } = await client.getSession(sessions[0].fullPath!);
  *
+ * // List available apps and open a path in one
+ * const apps = await client.getOpenInApps();
+ * await client.openIn('vscode', '/path/to/project');
+ *
  * // For raw OpenAPI access, use the low-level client:
  * const rawProjects = await client.api.getProjects();
  * ```

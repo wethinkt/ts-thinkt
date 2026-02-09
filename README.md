@@ -57,6 +57,10 @@ const client = createClient({ baseUrl: 'http://localhost:7433' });
 const projects = await client.getProjects();
 const sessions = await client.getSessions(projects[0].id);
 const { meta, entries, hasMore } = await client.getSession(sessions[0].fullPath!);
+
+// Open-in: list available apps and open a path
+const apps = await client.getOpenInApps(); // [{ id: 'finder', name: 'Finder', enabled: true }, ...]
+await client.openIn('vscode', '/path/to/project');
 ```
 
 For raw OpenAPI access (snake_case types):
