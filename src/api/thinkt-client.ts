@@ -7,7 +7,7 @@
  * For raw OpenAPI access, use ThinktApiClient directly or the `.api` property.
  */
 
-import type { ThinktClientConfig, APISourceInfo, AppInfo } from './client';
+import type { ThinktClientConfig, APISourceInfo, AppInfo, SearchResponse, SearchOptions } from './client';
 import { ThinktApiClient } from './client';
 import type { Project, SessionMeta, Entry } from '../types';
 import {
@@ -91,6 +91,11 @@ export class ThinktClient {
   /** List allowed apps for the open-in feature */
   async getOpenInApps(): Promise<AppInfo[]> {
     return this._api.getOpenInApps();
+  }
+
+  /** Search across indexed sessions */
+  async search(options: SearchOptions): Promise<SearchResponse> {
+    return this._api.search(options);
   }
 
   /** Stream all entries from a session (handles pagination) */
