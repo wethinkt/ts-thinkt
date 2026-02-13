@@ -55,6 +55,10 @@ export type {
   APISourceInfo,
   AppInfo,
   ErrorResponse,
+  SearchResponse,
+  SearchSessionResult,
+  SearchMatch,
+  SearchOptions,
 } from './client';
 
 // Raw API types (for consumers who need OpenAPI-level access)

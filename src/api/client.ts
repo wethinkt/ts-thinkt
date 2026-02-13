@@ -30,6 +30,50 @@ export interface ApiSessionResponse {
 }
 
 // ============================================
+// Search Types
+// ============================================
+
+/** Search match result */
+export interface SearchMatch {
+  line_num: number;
+  preview: string;
+  role: string;
+}
+
+/** Search result for a single session */
+export interface SearchSessionResult {
+  session_id: string;
+  project_name: string;
+  source: string;
+  path: string;
+  matches: SearchMatch[];
+}
+
+/** Search response from the indexer API */
+export interface SearchResponse {
+  sessions: SearchSessionResult[];
+  total_matches: number;
+}
+
+/** Options for searching sessions */
+export interface SearchOptions {
+  /** Search query text */
+  query: string;
+  /** Filter by project name (substring match) */
+  project?: string;
+  /** Filter by source (claude, kimi) */
+  source?: string;
+  /** Maximum total matches (default 50) */
+  limit?: number;
+  /** Maximum matches per session (default 2, 0 for no limit) */
+  limitPerSession?: number;
+  /** Enable case-sensitive matching (default false) */
+  caseSensitive?: boolean;
+  /** Treat query as a regular expression (default false) */
+  regex?: boolean;
+}
+
+// ============================================
 // Error Types
 // ============================================
 
@@ -295,6 +339,35 @@ export class ThinktApiClient {
     const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/open-in/apps');
     const response = await this.fetchWithTimeout<Response>(url);
     return response.apps ?? [];
+  }
+
+  /**
+   * Search across indexed sessions
+   *
+   * GET /search?q={query}&project={project}&source={source}&limit={limit}&limit_per_session={limit_per_session}&case_sensitive={case_sensitive}&regex={regex}
+   */
+  async search(options: SearchOptions): Promise<SearchResponse> {
+    const params: Record<string, string | number | undefined> = {
+      q: options.query,
+      project: options.project,
+      source: options.source,
+      limit: options.limit,
+      limit_per_session: options.limitPerSession,
+    };
+    // Add boolean params only when true
+    if (options.caseSensitive) {
+      params.case_sensitive = 'true';
+    }
+    if (options.regex) {
+      params.regex = 'true';
+    }
+    const url = buildUrl(
+      this.config.baseUrl,
+      this.config.apiVersion,
+      '/search',
+      params
+    );
+    return await this.fetchWithTimeout<SearchResponse>(url);
   }
 
   /**
