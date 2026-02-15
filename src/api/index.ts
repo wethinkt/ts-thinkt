@@ -52,13 +52,15 @@ export {
 export type {
   ThinktClientConfig,
   ApiSessionResponse,
-  APISourceInfo,
+  SourceInfo,
   AppInfo,
   ErrorResponse,
   SearchResponse,
   SearchSessionResult,
   SearchMatch,
   SearchOptions,
+  ResumeResponse,
+  StatsResponse,
 } from './client';
 
 // Raw API types (for consumers who need OpenAPI-level access)

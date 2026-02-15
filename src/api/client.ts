@@ -18,7 +18,7 @@ export type ContentBlock = components['schemas']['thinkt.ContentBlock'];
 export type TokenUsage = components['schemas']['thinkt.TokenUsage'];
 export type Role = components['schemas']['thinkt.Role'];
 export type Source = components['schemas']['thinkt.Source'];
-export type APISourceInfo = components['schemas']['server.APISourceInfo'];
+export type SourceInfo = components['schemas']['server.SourceInfo'];
 export type AppInfo = components['schemas']['config.AppInfo'];
 export type ErrorResponse = components['schemas']['server.ErrorResponse'];
 
@@ -33,27 +33,21 @@ export interface ApiSessionResponse {
 // Search Types
 // ============================================
 
-/** Search match result */
-export interface SearchMatch {
-  line_num: number;
-  preview: string;
-  role: string;
-}
+export type SearchMatch = components['schemas']['server.SearchMatch'];
+export type SearchSessionResult = components['schemas']['server.SearchSessionResult'];
+export type SearchResponse = components['schemas']['server.SearchResponse'];
 
-/** Search result for a single session */
-export interface SearchSessionResult {
-  session_id: string;
-  project_name: string;
-  source: string;
-  path: string;
-  matches: SearchMatch[];
-}
+// ============================================
+// Resume Types
+// ============================================
 
-/** Search response from the indexer API */
-export interface SearchResponse {
-  sessions: SearchSessionResult[];
-  total_matches: number;
-}
+export type ResumeResponse = components['schemas']['server.ResumeResponse'];
+
+// ============================================
+// Stats Types
+// ============================================
+
+export type StatsResponse = components['schemas']['server.StatsResponse'];
 
 /** Options for searching sessions */
 export interface SearchOptions {
@@ -236,7 +230,7 @@ export class ThinktApiClient {
    *
    * GET /sources
    */
-  async getSources(): Promise<APISourceInfo[]> {
+  async getSources(): Promise<SourceInfo[]> {
     type Response = paths['/sources']['get']['responses'][200]['content']['application/json'];
     const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/sources');
     const response = await this.fetchWithTimeout<Response>(url);
@@ -368,6 +362,41 @@ export class ThinktApiClient {
       params
     );
     return await this.fetchWithTimeout<SearchResponse>(url);
+  }
+
+  /**
+   * Get the resume command for a session
+   *
+   * GET /sessions/{path}/resume
+   */
+  async getResumeCommand(path: string): Promise<ResumeResponse> {
+    const encodedPath = encodeURIComponent(path);
+    const url = buildUrl(
+      this.config.baseUrl,
+      this.config.apiVersion,
+      `/sessions/${encodedPath}/resume`
+    );
+    return await this.fetchWithTimeout<ResumeResponse>(url);
+  }
+
+  /**
+   * Get indexer health status
+   *
+   * GET /indexer/health
+   */
+  async getIndexerHealth(): Promise<Record<string, unknown>> {
+    const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/indexer/health');
+    return await this.fetchWithTimeout<Record<string, unknown>>(url);
+  }
+
+  /**
+   * Get index usage statistics
+   *
+   * GET /stats
+   */
+  async getStats(): Promise<StatsResponse> {
+    const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/stats');
+    return await this.fetchWithTimeout<StatsResponse>(url);
   }
 
   /**

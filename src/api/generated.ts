@@ -4,6 +4,47 @@
  */
 
 export interface paths {
+    "/indexer/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get indexer health status
+         * @description Returns whether the indexer binary is available and the database path
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/open-in": {
         parameters: {
             query?: never;
@@ -261,6 +302,87 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search across indexed sessions
+         * @description Search for text within the original session files using the DuckDB index
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description Search query text */
+                    q: string;
+                    /** @description Filter by project name (substring match) */
+                    project?: string;
+                    /** @description Filter by source (claude, kimi) */
+                    source?: string;
+                    /** @description Maximum total matches (default 50) */
+                    limit?: number;
+                    /** @description Maximum matches per session (default 2, 0 for no limit) */
+                    limit_per_session?: number;
+                    /** @description Enable case-sensitive matching (default false) */
+                    case_sensitive?: boolean;
+                    /** @description Treat query as a regular expression (default false) */
+                    regex?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.SearchResponse"];
+                    };
+                };
+                /** @description Bad Request - missing query */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Service Unavailable - indexer not found */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/sessions/{path}": {
         parameters: {
             query?: never;
@@ -335,6 +457,84 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/sessions/{path}/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get resume command for a session
+         * @description Returns the command, arguments, and working directory needed to resume a session in its original CLI tool (e.g., claude --resume)
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Session file path (URL-encoded) */
+                    path: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ResumeResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Source does not support resume */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/sources": {
         parameters: {
             query?: never;
@@ -366,6 +566,63 @@ export interface paths {
                 };
                 /** @description Unauthorized - invalid or missing token */
                 401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get index usage statistics
+         * @description Returns aggregate usage statistics including total tokens and most used tools
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.StatsResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Service Unavailable - indexer not found */
+                503: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -688,11 +945,6 @@ export interface components {
             id?: string;
             name?: string;
         };
-        "server.APISourceInfo": {
-            available?: boolean;
-            base_path?: string;
-            name?: string;
-        };
         "server.AllowedAppsResponse": {
             apps?: components["schemas"]["config.AppInfo"][];
         };
@@ -713,6 +965,27 @@ export interface components {
         "server.ProjectsResponse": {
             projects?: components["schemas"]["thinkt.Project"][];
         };
+        "server.ResumeResponse": {
+            args?: string[];
+            command?: string;
+            dir?: string;
+        };
+        "server.SearchMatch": {
+            line_num?: number;
+            preview?: string;
+            role?: string;
+        };
+        "server.SearchResponse": {
+            sessions?: components["schemas"]["server.SearchSessionResult"][];
+            total_matches?: number;
+        };
+        "server.SearchSessionResult": {
+            matches?: components["schemas"]["server.SearchMatch"][];
+            path?: string;
+            project_name?: string;
+            session_id?: string;
+            source?: string;
+        };
         "server.SessionResponse": {
             entries?: components["schemas"]["thinkt.Entry"][];
             has_more?: boolean;
@@ -722,8 +995,23 @@ export interface components {
         "server.SessionsResponse": {
             sessions?: components["schemas"]["thinkt.SessionMeta"][];
         };
+        "server.SourceInfo": {
+            available?: boolean;
+            base_path?: string;
+            can_resume?: boolean;
+            name?: string;
+        };
         "server.SourcesResponse": {
-            sources?: components["schemas"]["server.APISourceInfo"][];
+            sources?: components["schemas"]["server.SourceInfo"][];
+        };
+        "server.StatsResponse": {
+            tool_usage?: {
+                [key: string]: number;
+            };
+            total_entries?: number;
+            total_projects?: number;
+            total_sessions?: number;
+            total_tokens?: number;
         };
         "server.TeamMessagesResponse": {
             messages?: components["schemas"]["thinkt.TeamMessage"][];
@@ -872,7 +1160,7 @@ export interface components {
             workspace_id?: string;
         };
         /** @enum {string} */
-        "thinkt.Source": "thinkt" | "claude" | "copilot" | "gemini" | "kimi";
+        "thinkt.Source": "thinkt" | "claude" | "codex" | "copilot" | "gemini" | "kimi";
         "thinkt.Team": {
             created_at?: string;
             description?: string;

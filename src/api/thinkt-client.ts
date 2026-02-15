@@ -7,7 +7,7 @@
  * For raw OpenAPI access, use ThinktApiClient directly or the `.api` property.
  */
 
-import type { ThinktClientConfig, APISourceInfo, AppInfo, SearchResponse, SearchOptions } from './client';
+import type { ThinktClientConfig, SourceInfo, AppInfo, SearchResponse, SearchOptions, ResumeResponse, StatsResponse } from './client';
 import { ThinktApiClient } from './client';
 import type { Project, SessionMeta, Entry } from '../types';
 import {
@@ -53,7 +53,7 @@ export class ThinktClient {
   }
 
   /** List available trace sources (Claude Code, Kimi Code, etc.) */
-  async getSources(): Promise<APISourceInfo[]> {
+  async getSources(): Promise<SourceInfo[]> {
     return this._api.getSources();
   }
 
@@ -96,6 +96,21 @@ export class ThinktClient {
   /** Search across indexed sessions */
   async search(options: SearchOptions): Promise<SearchResponse> {
     return this._api.search(options);
+  }
+
+  /** Get the resume command for a session */
+  async getResumeCommand(path: string): Promise<ResumeResponse> {
+    return this._api.getResumeCommand(path);
+  }
+
+  /** Get indexer health status */
+  async getIndexerHealth(): Promise<Record<string, unknown>> {
+    return this._api.getIndexerHealth();
+  }
+
+  /** Get index usage statistics */
+  async getStats(): Promise<StatsResponse> {
+    return this._api.getStats();
   }
 
   /** Stream all entries from a session (handles pagination) */

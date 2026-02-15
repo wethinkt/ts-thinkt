@@ -27,6 +27,7 @@ import type {
 // ============================================
 
 function convertSource(source: string | undefined): Source {
+  if (source === 'codex') return 'codex';
   if (source === 'kimi') return 'kimi';
   if (source === 'gemini') return 'gemini';
   return 'claude';
