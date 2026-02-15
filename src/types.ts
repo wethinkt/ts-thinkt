@@ -12,7 +12,7 @@
 /**
  * Source identifies which AI tool created the conversation data
  */
-export type Source = 'claude' | 'kimi' | 'gemini';
+export type Source = 'claude' | 'codex' | 'kimi' | 'gemini';
 
 /**
  * Workspace represents a unique machine/host context for sessions

@@ -250,8 +250,10 @@ export type {
   ThinktClientConfig,
   SessionResponse,
   ApiSessionResponse,
-  APISourceInfo,
+  SourceInfo,
   ErrorResponse,
+  ResumeResponse,
+  StatsResponse,
 } from './api';
 
 export type { paths as APIPaths, components as APIComponents } from './api';

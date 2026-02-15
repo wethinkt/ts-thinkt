@@ -7,6 +7,27 @@
         "version": "1.0"
     },
     "paths": {
+        "/indexer/health": {
+            "get": {
+                "description": "Returns whether the indexer binary is available and the database path",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "indexer"
+                ],
+                "summary": "Get indexer health status",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/open-in": {
             "post": {
                 "security": [
@@ -198,6 +219,94 @@
                 }
             }
         },
+        "/search": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Search for text within the original session files using the DuckDB index",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "indexer"
+                ],
+                "summary": "Search across indexed sessions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search query text",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by project name (substring match)",
+                        "name": "project",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by source (claude, kimi)",
+                        "name": "source",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum total matches (default 50)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum matches per session (default 2, 0 for no limit)",
+                        "name": "limit_per_session",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Enable case-sensitive matching (default false)",
+                        "name": "case_sensitive",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Treat query as a regular expression (default false)",
+                        "name": "regex",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.SearchResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - missing query",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable - indexer not found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/sessions/{path}": {
             "get": {
                 "security": [
@@ -262,6 +371,64 @@
                 }
             }
         },
+        "/sessions/{path}/resume": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the command, arguments, and working directory needed to resume a session in its original CLI tool (e.g., claude --resume)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "Get resume command for a session",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session file path (URL-encoded)",
+                        "name": "path",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.ResumeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Source does not support resume",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/sources": {
             "get": {
                 "security": [
@@ -286,6 +453,43 @@
                     },
                     "401": {
                         "description": "Unauthorized - invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/stats": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns aggregate usage statistics including total tokens and most used tools",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "indexer"
+                ],
+                "summary": "Get index usage statistics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.StatsResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable - indexer not found",
                         "schema": {
                             "$ref": "#/definitions/server.ErrorResponse"
                         }
@@ -528,20 +732,6 @@
                 }
             }
         },
-        "server.APISourceInfo": {
-            "type": "object",
-            "properties": {
-                "available": {
-                    "type": "boolean"
-                },
-                "base_path": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
         "server.AllowedAppsResponse": {
             "type": "object",
             "properties": {
@@ -599,6 +789,74 @@
                 }
             }
         },
+        "server.ResumeResponse": {
+            "type": "object",
+            "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "command": {
+                    "type": "string"
+                },
+                "dir": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.SearchMatch": {
+            "type": "object",
+            "properties": {
+                "line_num": {
+                    "type": "integer"
+                },
+                "preview": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.SearchResponse": {
+            "type": "object",
+            "properties": {
+                "sessions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/server.SearchSessionResult"
+                    }
+                },
+                "total_matches": {
+                    "type": "integer"
+                }
+            }
+        },
+        "server.SearchSessionResult": {
+            "type": "object",
+            "properties": {
+                "matches": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/server.SearchMatch"
+                    }
+                },
+                "path": {
+                    "type": "string"
+                },
+                "project_name": {
+                    "type": "string"
+                },
+                "session_id": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
         "server.SessionResponse": {
             "type": "object",
             "properties": {
@@ -630,14 +888,54 @@
                 }
             }
         },
+        "server.SourceInfo": {
+            "type": "object",
+            "properties": {
+                "available": {
+                    "type": "boolean"
+                },
+                "base_path": {
+                    "type": "string"
+                },
+                "can_resume": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "server.SourcesResponse": {
             "type": "object",
             "properties": {
                 "sources": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/server.APISourceInfo"
+                        "$ref": "#/definitions/server.SourceInfo"
                     }
+                }
+            }
+        },
+        "server.StatsResponse": {
+            "type": "object",
+            "properties": {
+                "tool_usage": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "total_entries": {
+                    "type": "integer"
+                },
+                "total_projects": {
+                    "type": "integer"
+                },
+                "total_sessions": {
+                    "type": "integer"
+                },
+                "total_tokens": {
+                    "type": "integer"
                 }
             }
         },
@@ -1066,6 +1364,7 @@
             "enum": [
                 "thinkt",
                 "claude",
+                "codex",
                 "copilot",
                 "gemini",
                 "kimi"
@@ -1073,6 +1372,7 @@
             "x-enum-varnames": [
                 "SourceThinkt",
                 "SourceClaude",
+                "SourceCodex",
                 "SourceCopilot",
                 "SourceGemini",
                 "SourceKimi"
