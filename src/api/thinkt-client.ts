@@ -103,6 +103,11 @@ export class ThinktClient {
     return this._api.getResumeCommand(path);
   }
 
+  /** Execute the resume command for a session in the configured terminal */
+  async execResumeSession(path: string): Promise<{ success: boolean; message?: string }> {
+    return this._api.execResumeSession(path);
+  }
+
   /** Get indexer health status */
   async getIndexerHealth(): Promise<Record<string, unknown>> {
     return this._api.getIndexerHealth();
