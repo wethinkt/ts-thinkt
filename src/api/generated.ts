@@ -465,12 +465,16 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get resume command for a session
-         * @description Returns the command, arguments, and working directory needed to resume a session in its original CLI tool (e.g., claude --resume)
+         * Get or execute resume command for a session
+         * @description Returns the command, arguments, and working directory needed to resume a session.
+         *     With ?action=exec, spawns the command in the configured terminal instead.
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    /** @description Set to 'exec' to spawn the command in a terminal */
+                    action?: string;
+                };
                 header?: never;
                 path: {
                     /** @description Session file path (URL-encoded) */
@@ -1160,7 +1164,7 @@ export interface components {
             workspace_id?: string;
         };
         /** @enum {string} */
-        "thinkt.Source": "thinkt" | "claude" | "codex" | "copilot" | "gemini" | "kimi";
+        "thinkt.Source": "thinkt" | "claude" | "codex" | "copilot" | "gemini" | "kimi" | "qwen";
         "thinkt.Team": {
             created_at?: string;
             description?: string;

@@ -402,6 +402,21 @@ export class ThinktApiClient {
   }
 
   /**
+   * Execute the resume command for a session in a terminal
+   *
+   * GET /sessions/{path}/resume?action=exec
+   */
+  async execResumeSession(path: string): Promise<{ success: boolean; message?: string }> {
+    const encodedPath = encodeURIComponent(path);
+    const url = buildUrl(
+      this.config.baseUrl,
+      this.config.apiVersion,
+      `/sessions/${encodedPath}/resume?action=exec`
+    );
+    return await this.fetchWithTimeout<{ success: boolean; message?: string }>(url);
+  }
+
+  /**
    * Get indexer health status
    *
    * GET /indexer/health
