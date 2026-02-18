@@ -7,7 +7,7 @@
  * For raw OpenAPI access, use ThinktApiClient directly or the `.api` property.
  */
 
-import type { ThinktClientConfig, SourceInfo, AppInfo, SearchResponse, SearchOptions, ResumeResponse, StatsResponse } from './client';
+import type { ThinktClientConfig, SourceInfo, AppInfo, SearchResponse, SearchOptions, ResumeResponse, StatsResponse, Team, TeamMessage, TeamTask, ThemesResponse } from './client';
 import { ThinktApiClient } from './client';
 import type { Project, SessionMeta, Entry } from '../types';
 import {
@@ -111,6 +111,31 @@ export class ThinktClient {
   /** Get index usage statistics */
   async getStats(): Promise<StatsResponse> {
     return this._api.getStats();
+  }
+
+  /** List all teams */
+  async getTeams(): Promise<Team[]> {
+    return this._api.getTeams();
+  }
+
+  /** Get team details including resolved member-to-session mappings */
+  async getTeam(teamName: string): Promise<Team> {
+    return this._api.getTeam(teamName);
+  }
+
+  /** List inbox messages for a specific team member */
+  async getTeamMemberMessages(teamName: string, memberName: string): Promise<TeamMessage[]> {
+    return this._api.getTeamMemberMessages(teamName, memberName);
+  }
+
+  /** List the shared task board for a team */
+  async getTeamTasks(teamName: string): Promise<TeamTask[]> {
+    return this._api.getTeamTasks(teamName);
+  }
+
+  /** List available themes (built-in and user themes) */
+  async getThemes(): Promise<ThemesResponse> {
+    return this._api.getThemes();
   }
 
   /** Stream all entries from a session (handles pagination) */
