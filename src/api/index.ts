@@ -61,6 +61,18 @@ export type {
   SearchOptions,
   ResumeResponse,
   StatsResponse,
+  Team,
+  TeamMember,
+  TeamMessage,
+  TeamStatus,
+  TeamTask,
+  TeamsResponse,
+  TeamMessagesResponse,
+  TeamTasksResponse,
+  ThemeInfo,
+  ThemeColors,
+  ThemeStyle,
+  ThemesResponse,
 } from './client';
 
 // Raw API types (for consumers who need OpenAPI-level access)

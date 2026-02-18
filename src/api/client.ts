@@ -49,6 +49,28 @@ export type ResumeResponse = components['schemas']['server.ResumeResponse'];
 
 export type StatsResponse = components['schemas']['server.StatsResponse'];
 
+// ============================================
+// Team Types
+// ============================================
+
+export type Team = components['schemas']['thinkt.Team'];
+export type TeamMember = components['schemas']['thinkt.TeamMember'];
+export type TeamMessage = components['schemas']['thinkt.TeamMessage'];
+export type TeamStatus = components['schemas']['thinkt.TeamStatus'];
+export type TeamTask = components['schemas']['thinkt.TeamTask'];
+export type TeamsResponse = components['schemas']['server.TeamsResponse'];
+export type TeamMessagesResponse = components['schemas']['server.TeamMessagesResponse'];
+export type TeamTasksResponse = components['schemas']['server.TeamTasksResponse'];
+
+// ============================================
+// Theme Types
+// ============================================
+
+export type ThemeInfo = components['schemas']['server.ThemeInfo'];
+export type ThemeColors = components['schemas']['server.ThemeColors'];
+export type ThemeStyle = components['schemas']['server.ThemeStyle'];
+export type ThemesResponse = components['schemas']['server.ThemesResponse'];
+
 /** Options for searching sessions */
 export interface SearchOptions {
   /** Search query text */
@@ -397,6 +419,80 @@ export class ThinktApiClient {
   async getStats(): Promise<StatsResponse> {
     const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/stats');
     return await this.fetchWithTimeout<StatsResponse>(url);
+  }
+
+  // ============================================
+  // API Methods: Teams
+  // ============================================
+
+  /**
+   * List all teams
+   *
+   * GET /teams
+   */
+  async getTeams(): Promise<Team[]> {
+    type Response = paths['/teams']['get']['responses'][200]['content']['application/json'];
+    const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/teams');
+    const response = await this.fetchWithTimeout<Response>(url);
+    return response.teams ?? [];
+  }
+
+  /**
+   * Get team details including resolved member-to-session mappings
+   *
+   * GET /teams/{teamName}
+   */
+  async getTeam(teamName: string): Promise<Team> {
+    type Response = paths['/teams/{teamName}']['get']['responses'][200]['content']['application/json'];
+    const encodedName = encodeURIComponent(teamName);
+    const url = buildUrl(this.config.baseUrl, this.config.apiVersion, `/teams/${encodedName}`);
+    return await this.fetchWithTimeout<Response>(url);
+  }
+
+  /**
+   * List inbox messages for a specific team member
+   *
+   * GET /teams/{teamName}/members/{memberName}/messages
+   */
+  async getTeamMemberMessages(teamName: string, memberName: string): Promise<TeamMessage[]> {
+    type Response = paths['/teams/{teamName}/members/{memberName}/messages']['get']['responses'][200]['content']['application/json'];
+    const encodedTeam = encodeURIComponent(teamName);
+    const encodedMember = encodeURIComponent(memberName);
+    const url = buildUrl(
+      this.config.baseUrl,
+      this.config.apiVersion,
+      `/teams/${encodedTeam}/members/${encodedMember}/messages`
+    );
+    const response = await this.fetchWithTimeout<Response>(url);
+    return response.messages ?? [];
+  }
+
+  /**
+   * List the shared task board for a team
+   *
+   * GET /teams/{teamName}/tasks
+   */
+  async getTeamTasks(teamName: string): Promise<TeamTask[]> {
+    type Response = paths['/teams/{teamName}/tasks']['get']['responses'][200]['content']['application/json'];
+    const encodedName = encodeURIComponent(teamName);
+    const url = buildUrl(this.config.baseUrl, this.config.apiVersion, `/teams/${encodedName}/tasks`);
+    const response = await this.fetchWithTimeout<Response>(url);
+    return response.tasks ?? [];
+  }
+
+  // ============================================
+  // API Methods: Themes
+  // ============================================
+
+  /**
+   * List available themes (built-in and user themes)
+   *
+   * GET /themes
+   */
+  async getThemes(): Promise<ThemesResponse> {
+    type Response = paths['/themes']['get']['responses'][200]['content']['application/json'];
+    const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/themes');
+    return await this.fetchWithTimeout<Response>(url);
   }
 
   /**

@@ -254,6 +254,15 @@ export type {
   ErrorResponse,
   ResumeResponse,
   StatsResponse,
+  Team,
+  TeamMember,
+  TeamMessage,
+  TeamStatus,
+  TeamTask,
+  ThemeInfo,
+  ThemeColors,
+  ThemeStyle,
+  ThemesResponse,
 } from './api';
 
 export type { paths as APIPaths, components as APIComponents } from './api';
