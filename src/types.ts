@@ -12,7 +12,7 @@
 /**
  * Source identifies which AI tool created the conversation data
  */
-export type Source = 'thinkt' | 'claude' | 'codex' | 'copilot' | 'gemini' | 'kimi';
+export type Source = 'thinkt' | 'claude' | 'codex' | 'copilot' | 'gemini' | 'kimi' | 'qwen';
 
 /**
  * Workspace represents a unique machine/host context for sessions
