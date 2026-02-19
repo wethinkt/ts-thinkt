@@ -32,6 +32,7 @@ function convertSource(source: string | undefined): Source {
   if (source === 'copilot') return 'copilot';
   if (source === 'kimi') return 'kimi';
   if (source === 'gemini') return 'gemini';
+  if (source === 'qwen') return 'qwen';
   return 'claude';
 }
 

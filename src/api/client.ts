@@ -282,15 +282,19 @@ export class ThinktApiClient {
   /**
    * List all sessions for a specific project
    *
-   * GET /projects/{projectID}/sessions
+   * GET /projects/{source}/{projectID}/sessions
    */
-  async getSessions(projectID: string): Promise<SessionMeta[]> {
-    type Response = paths['/projects/{projectID}/sessions']['get']['responses'][200]['content']['application/json'];
+  async getSessions(projectID: string, source?: string): Promise<SessionMeta[]> {
+    type Response = { sessions?: SessionMeta[] };
     const encodedProjectID = encodeURIComponent(projectID);
+    const normalizedSource = source?.trim().toLowerCase();
+    const path = normalizedSource
+      ? `/projects/${encodeURIComponent(normalizedSource)}/${encodedProjectID}/sessions`
+      : `/projects/${encodedProjectID}/sessions`;
     const url = buildUrl(
       this.config.baseUrl,
       this.config.apiVersion,
-      `/projects/${encodedProjectID}/sessions`
+      path,
     );
     const response = await this.fetchWithTimeout<Response>(url);
     return response.sessions ?? [];

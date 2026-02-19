@@ -246,9 +246,83 @@ export interface paths {
          */
         get: {
             parameters: {
+                query?: {
+                    /** @description Source name (recommended to avoid ambiguous project IDs) */
+                    source?: string;
+                };
+                header?: never;
+                path: {
+                    /** @description Project ID (URL-encoded path) */
+                    projectID: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.SessionsResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{source}/{projectID}/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List sessions for a project in a source
+         * @description Returns all sessions belonging to a specific project within a specific source
+         */
+        get: {
+            parameters: {
                 query?: never;
                 header?: never;
                 path: {
+                    /** @description Source name (e.g., 'claude', 'kimi') */
+                    source: string;
                     /** @description Project ID (URL-encoded path) */
                     projectID: string;
                 };

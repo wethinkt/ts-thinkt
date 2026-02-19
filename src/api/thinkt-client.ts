@@ -64,8 +64,8 @@ export class ThinktClient {
   }
 
   /** List all sessions for a project */
-  async getSessions(projectID: string): Promise<SessionMeta[]> {
-    const raw = await this._api.getSessions(projectID);
+  async getSessions(projectID: string, source?: string): Promise<SessionMeta[]> {
+    const raw = await this._api.getSessions(projectID, source);
     return raw.map(convertApiSessionMeta);
   }
 

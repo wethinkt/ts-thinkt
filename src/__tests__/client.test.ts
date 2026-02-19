@@ -147,11 +147,11 @@ describe('ThinktApiClient', () => {
       });
 
       const client = new ThinktApiClient({ fetch: mockFetch });
-      const sessions = await client.getSessions('my-project');
+      const sessions = await client.getSessions('my-project', 'claude');
 
       expect(sessions).toHaveLength(2);
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:7433/api/v1/projects/my-project/sessions',
+        'http://localhost:7433/api/v1/projects/claude/my-project/sessions',
         expect.any(Object)
       );
     });
@@ -163,10 +163,10 @@ describe('ThinktApiClient', () => {
       });
 
       const client = new ThinktApiClient({ fetch: mockFetch });
-      await client.getSessions('path with spaces');
+      await client.getSessions('path with spaces', 'kimi');
 
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('path%20with%20spaces'),
+        expect.stringContaining('/projects/kimi/path%20with%20spaces/sessions'),
         expect.any(Object)
       );
     });
