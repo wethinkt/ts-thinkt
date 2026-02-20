@@ -21,12 +21,26 @@ export type Source = components['schemas']['thinkt.Source'];
 export type SourceInfo = components['schemas']['server.SourceInfo'];
 export type AppInfo = components['schemas']['config.AppInfo'];
 export type ErrorResponse = components['schemas']['server.ErrorResponse'];
+export type SessionMetadataResponse = components['schemas']['server.SessionMetadataResponse'];
 
 export interface ApiSessionResponse {
   meta: SessionMeta;
   entries: Entry[];
   total: number;
   has_more: boolean;
+}
+
+export interface SessionMetadataOptions {
+  /** Maximum summaries/previews to return */
+  limit?: number;
+  /** Number of summaries/previews to skip */
+  offset?: number;
+  /** Roles to exclude from summaries */
+  excludeRoles?: string[];
+  /** Return lightweight user-message previews only */
+  summaryOnly?: boolean;
+  /** Summary ordering: index (default) or length */
+  sortBy?: 'index' | 'length';
 }
 
 // ============================================
@@ -268,9 +282,12 @@ export class ThinktApiClient {
    *
    * GET /projects?source={source}
    */
-  async getProjects(source?: string): Promise<Project[]> {
+  async getProjects(source?: string, options?: { includeDeleted?: boolean }): Promise<Project[]> {
     type Response = paths['/projects']['get']['responses'][200]['content']['application/json'];
-    const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/projects', { source });
+    const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/projects', {
+      source,
+      include_deleted: options?.includeDeleted ? 'true' : undefined,
+    });
     const response = await this.fetchWithTimeout<Response>(url);
     return response.projects ?? [];
   }
@@ -325,6 +342,38 @@ export class ThinktApiClient {
       total: response.total ?? 0,
       has_more: response.has_more ?? false,
     };
+  }
+
+  /**
+   * Get session metadata and previews (without full entry payloads)
+   *
+   * GET /sessions/{path}/metadata
+   */
+  async getSessionMetadata(
+    path: string,
+    options?: SessionMetadataOptions
+  ): Promise<SessionMetadataResponse> {
+    type Response = paths['/sessions/{path}/metadata']['get']['responses'][200]['content']['application/json'];
+    const encodedPath = encodeURIComponent(path);
+    const params: Record<string, string | number | undefined> = {
+      limit: options?.limit,
+      offset: options?.offset,
+      sort_by: options?.sortBy,
+    };
+    if (options?.excludeRoles && options.excludeRoles.length > 0) {
+      params.exclude_roles = options.excludeRoles.join(',');
+    }
+    if (options?.summaryOnly !== undefined) {
+      params.summary_only = options.summaryOnly ? 'true' : 'false';
+    }
+
+    const url = buildUrl(
+      this.config.baseUrl,
+      this.config.apiVersion,
+      `/sessions/${encodedPath}/metadata`,
+      params
+    );
+    return await this.fetchWithTimeout<Response>(url);
   }
 
   /**
