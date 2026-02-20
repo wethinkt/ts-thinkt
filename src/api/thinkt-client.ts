@@ -7,9 +7,23 @@
  * For raw OpenAPI access, use ThinktApiClient directly or the `.api` property.
  */
 
-import type { ThinktClientConfig, SourceInfo, AppInfo, SearchResponse, SearchOptions, ResumeResponse, StatsResponse, Team, TeamMessage, TeamTask, ThemesResponse } from './client';
+import type {
+  ThinktClientConfig,
+  SourceInfo,
+  AppInfo,
+  SearchResponse,
+  SearchOptions,
+  ResumeResponse,
+  StatsResponse,
+  Team,
+  TeamMessage,
+  TeamTask,
+  ThemesResponse,
+  SessionMetadataOptions,
+  SessionMetadataResponse,
+} from './client';
 import { ThinktApiClient } from './client';
-import type { Project, SessionMeta, Entry } from '../types';
+import type { Project, SessionMeta, Entry, Source } from '../types';
 import {
   convertApiProject,
   convertApiSessionMeta,
@@ -26,6 +40,38 @@ export interface SessionResponse {
   entries: Entry[];
   total: number;
   hasMore: boolean;
+}
+
+/** Metadata summary response with domain session meta and lightweight previews */
+export interface SessionMetadataSummary {
+  index?: number;
+  role?: string;
+  timestamp?: string;
+  contentLength?: number;
+  hasThinking?: boolean;
+  hasToolUse?: boolean;
+  hasToolResult?: boolean;
+  preview?: string;
+}
+
+export interface SessionMetadataDomainResponse {
+  meta: SessionMeta;
+  description?: string;
+  roleCounts: Record<string, number>;
+  entrySummary: SessionMetadataSummary[];
+  totalEntries: number;
+  totalContentBytes: number;
+  returnedSummaries: number;
+}
+
+function toDomainSource(source?: string): Source {
+  if (source === 'thinkt') return 'thinkt';
+  if (source === 'codex') return 'codex';
+  if (source === 'copilot') return 'copilot';
+  if (source === 'kimi') return 'kimi';
+  if (source === 'gemini') return 'gemini';
+  if (source === 'qwen') return 'qwen';
+  return 'claude';
 }
 
 // ============================================
@@ -58,8 +104,8 @@ export class ThinktClient {
   }
 
   /** List all projects, optionally filtered by source */
-  async getProjects(source?: string): Promise<Project[]> {
-    const raw = await this._api.getProjects(source);
+  async getProjects(source?: string, options?: { includeDeleted?: boolean }): Promise<Project[]> {
+    const raw = await this._api.getProjects(source, options);
     return raw.map(convertApiProject);
   }
 
@@ -80,6 +126,44 @@ export class ThinktClient {
       entries: raw.entries.map(convertApiEntry),
       total: raw.total,
       hasMore: raw.has_more,
+    };
+  }
+
+  /** Get session metadata and lightweight previews */
+  async getSessionMetadata(
+    path: string,
+    options?: SessionMetadataOptions,
+  ): Promise<SessionMetadataDomainResponse> {
+    const raw: SessionMetadataResponse = await this._api.getSessionMetadata(path, options);
+    const rawMeta = raw.meta;
+    const meta: SessionMeta = {
+      id: rawMeta?.id ?? 'unknown',
+      fullPath: rawMeta?.path,
+      entryCount: raw.total_entries ?? 0,
+      createdAt: rawMeta?.created_at ? new Date(rawMeta.created_at) : undefined,
+      modifiedAt: rawMeta?.modified_at ? new Date(rawMeta.modified_at) : undefined,
+      gitBranch: rawMeta?.git_branch,
+      model: rawMeta?.model,
+      source: toDomainSource(rawMeta?.source),
+      title: rawMeta?.id ?? 'Session Metadata',
+    };
+    return {
+      meta,
+      description: raw.description,
+      roleCounts: raw.role_counts ?? {},
+      entrySummary: (raw.entry_summary ?? []).map((entry) => ({
+        index: entry.index,
+        role: entry.role,
+        timestamp: entry.timestamp,
+        contentLength: entry.content_length,
+        hasThinking: entry.has_thinking,
+        hasToolUse: entry.has_tool_use,
+        hasToolResult: entry.has_tool_result,
+        preview: entry.preview,
+      })),
+      totalEntries: raw.total_entries ?? 0,
+      totalContentBytes: raw.total_content_bytes ?? 0,
+      returnedSummaries: raw.returned_summaries ?? 0,
     };
   }
 

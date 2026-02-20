@@ -189,6 +189,8 @@ export interface paths {
                 query?: {
                     /** @description Filter by source (e.g., 'claude', 'kimi') */
                     source?: string;
+                    /** @description Include projects with path_exists=false (default false) */
+                    include_deleted?: boolean;
                 };
                 header?: never;
                 path?: never;
@@ -203,6 +205,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["server.ProjectsResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
                     };
                 };
                 /** @description Unauthorized - invalid or missing token */
@@ -492,6 +503,86 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["server.SessionResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sessions/{path}/metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get session metadata
+         * @description Returns session metadata, role counts, and entry previews. Set summary_only=true for quick user-message previews.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Maximum summaries/previews to return (default 50; default 5 when summary_only=true) */
+                    limit?: number;
+                    /** @description Number of summaries/previews to skip */
+                    offset?: number;
+                    /** @description Roles to exclude (repeat query param or comma-separated). Defaults to checkpoint. */
+                    exclude_roles?: string[];
+                    /** @description Return lightweight user-message previews only */
+                    summary_only?: boolean;
+                    /** @description Summary ordering: index (default) or length */
+                    sort_by?: string;
+                };
+                header?: never;
+                path: {
+                    /** @description Session file path (URL-encoded) */
+                    path: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.SessionMetadataResponse"];
                     };
                 };
                 /** @description Bad Request */
@@ -1064,6 +1155,17 @@ export interface components {
             session_id?: string;
             source?: string;
         };
+        "server.SessionMetadataResponse": {
+            description?: string;
+            entry_summary?: components["schemas"]["server.entrySummary"][];
+            meta?: components["schemas"]["server.sessionMetaInfo"];
+            returned_summaries?: number;
+            role_counts?: {
+                [key: string]: number;
+            };
+            total_content_bytes?: number;
+            total_entries?: number;
+        };
         "server.SessionResponse": {
             entries?: components["schemas"]["thinkt.Entry"][];
             has_more?: boolean;
@@ -1142,6 +1244,25 @@ export interface components {
         "server.ThemesResponse": {
             active?: string;
             themes?: components["schemas"]["server.ThemeInfo"][];
+        };
+        "server.entrySummary": {
+            content_length?: number;
+            has_thinking?: boolean;
+            has_tool_result?: boolean;
+            has_tool_use?: boolean;
+            index?: number;
+            preview?: string;
+            role?: string;
+            timestamp?: string;
+        };
+        "server.sessionMetaInfo": {
+            created_at?: string;
+            git_branch?: string;
+            id?: string;
+            model?: string;
+            modified_at?: string;
+            path?: string;
+            source?: string;
         };
         "thinkt.ContentBlock": {
             is_error?: boolean;
