@@ -136,6 +136,8 @@ export interface ThinktClientConfig {
   apiVersion: string;
   /** Request timeout in milliseconds (default: 30000) */
   timeout: number;
+  /** Optional bearer token for API authentication */
+  token?: string;
   /** Optional custom fetch implementation */
   fetch?: typeof fetch;
 }
@@ -213,11 +215,17 @@ export class ThinktApiClient {
     const fetchImpl = this.config.fetch ?? fetch;
 
     try {
+      const authHeaders: Record<string, string> = {};
+      if (this.config.token) {
+        authHeaders['Authorization'] = `Bearer ${this.config.token}`;
+      }
+
       const response = await fetchImpl(url, {
         ...options,
         signal: controller.signal,
         headers: {
           'Accept': 'application/json',
+          ...authHeaders,
           ...options.headers,
         },
       });
