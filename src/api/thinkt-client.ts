@@ -13,6 +13,8 @@ import type {
   AppInfo,
   SearchResponse,
   SearchOptions,
+  SemanticSearchResponse,
+  SemanticSearchOptions,
   ResumeResponse,
   StatsResponse,
   Team,
@@ -180,6 +182,11 @@ export class ThinktClient {
   /** Search across indexed sessions */
   async search(options: SearchOptions): Promise<SearchResponse> {
     return this._api.search(options);
+  }
+
+  /** Semantic search across indexed sessions using embeddings */
+  async semanticSearch(options: SemanticSearchOptions): Promise<SemanticSearchResponse> {
+    return this._api.semanticSearch(options);
   }
 
   /** Get the resume command for a session */

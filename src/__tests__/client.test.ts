@@ -31,7 +31,7 @@ describe('ThinktApiClient', () => {
       const client = new ThinktApiClient();
       const config = client.getConfig();
 
-      expect(config.baseUrl).toBe('http://localhost:7433');
+      expect(config.baseUrl).toBe('http://localhost:8784');
       expect(config.apiVersion).toBe('/api/v1');
       expect(config.timeout).toBe(30000);
     });
@@ -77,7 +77,7 @@ describe('ThinktApiClient', () => {
       expect(sources).toHaveLength(2);
       expect(sources[0].name).toBe('claude');
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:7433/api/v1/sources',
+        'http://localhost:8784/api/v1/sources',
         expect.any(Object)
       );
     });
@@ -126,7 +126,7 @@ describe('ThinktApiClient', () => {
       await client.getProjects('claude');
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:7433/api/v1/projects?source=claude',
+        'http://localhost:8784/api/v1/projects?source=claude',
         expect.any(Object)
       );
     });
@@ -151,7 +151,7 @@ describe('ThinktApiClient', () => {
 
       expect(sessions).toHaveLength(2);
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:7433/api/v1/projects/claude/my-project/sessions',
+        'http://localhost:8784/api/v1/projects/claude/my-project/sessions',
         expect.any(Object)
       );
     });
@@ -275,6 +275,68 @@ describe('ThinktApiClient', () => {
       const entries = await client.getAllSessionEntries('/path/to/session.json');
 
       expect(entries).toHaveLength(2);
+    });
+  });
+
+  describe('semanticSearch', () => {
+    it('should perform semantic search with all options', async () => {
+      const mockResults = {
+        results: [
+          {
+            session_id: 'sess1',
+            entry_uuid: 'uuid1',
+            chunk_index: 0,
+            total_chunks: 1,
+            distance: 0.15,
+            role: 'assistant',
+            project_name: 'my-project',
+            source: 'claude',
+          },
+        ],
+      };
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResults,
+      });
+
+      const client = new ThinktApiClient({ fetch: mockFetch });
+      const response = await client.semanticSearch({
+        query: 'how to handle errors',
+        project: 'my-project',
+        source: 'claude',
+        limit: 10,
+        maxDistance: 0.5,
+        diversity: true,
+      });
+
+      expect(response.results).toHaveLength(1);
+      expect(response.results![0].session_id).toBe('sess1');
+
+      const callUrl = mockFetch.mock.calls[0][0] as string;
+      expect(callUrl).toContain('/semantic-search');
+      expect(callUrl).toContain('q=how+to+handle+errors');
+      expect(callUrl).toContain('project=my-project');
+      expect(callUrl).toContain('source=claude');
+      expect(callUrl).toContain('limit=10');
+      expect(callUrl).toContain('max_distance=0.5');
+      expect(callUrl).toContain('diversity=true');
+    });
+
+    it('should perform semantic search with minimal options', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ results: [] }),
+      });
+
+      const client = new ThinktApiClient({ fetch: mockFetch });
+      const response = await client.semanticSearch({ query: 'test' });
+
+      expect(response.results).toEqual([]);
+
+      const callUrl = mockFetch.mock.calls[0][0] as string;
+      expect(callUrl).toContain('q=test');
+      expect(callUrl).not.toContain('diversity');
     });
   });
 
