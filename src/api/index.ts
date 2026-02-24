@@ -7,7 +7,7 @@
  * ```typescript
  * import { createClient, type Project } from '@wethinkt/ts-thinkt/api';
  *
- * const client = createClient({ baseUrl: 'http://localhost:7433' });
+ * const client = createClient({ baseUrl: 'http://localhost:8784' });
  *
  * // List all projects (returns domain types with camelCase fields)
  * const projects = await client.getProjects();
@@ -59,6 +59,9 @@ export type {
   SearchSessionResult,
   SearchMatch,
   SearchOptions,
+  SemanticSearchResult,
+  SemanticSearchResponse,
+  SemanticSearchOptions,
   ResumeResponse,
   StatsResponse,
   Team,

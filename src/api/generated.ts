@@ -468,6 +468,85 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/semantic-search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Semantic search across indexed sessions
+         * @description Search for sessions by meaning using on-device embeddings. Returns sessions ranked by semantic similarity. Requires the indexer with a synced embedding index.
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description Natural language search query */
+                    q: string;
+                    /** @description Filter by project name (substring match) */
+                    project?: string;
+                    /** @description Filter by source (claude, kimi, gemini, copilot, codex, qwen) */
+                    source?: string;
+                    /** @description Maximum number of results (default 20) */
+                    limit?: number;
+                    /** @description Cosine distance threshold (0-2, lower is more similar) */
+                    max_distance?: number;
+                    /** @description Apply diversity scoring to return results from different sessions */
+                    diversity?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.SemanticSearchResponse"];
+                    };
+                };
+                /** @description Bad Request - missing query */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Service Unavailable - indexer not found */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/sessions/{path}": {
         parameters: {
             query?: never;
@@ -1155,9 +1234,29 @@ export interface components {
             session_id?: string;
             source?: string;
         };
+        "server.SemanticSearchResponse": {
+            results?: components["schemas"]["server.SemanticSearchResult"][];
+        };
+        "server.SemanticSearchResult": {
+            chunk_index?: number;
+            distance?: number;
+            entry_uuid?: string;
+            first_prompt?: string;
+            line_number?: number;
+            project_name?: string;
+            role?: string;
+            session_id?: string;
+            session_path?: string;
+            source?: string;
+            timestamp?: string;
+            tool_name?: string;
+            total_chunks?: number;
+            word_count?: number;
+        };
         "server.SessionMetadataResponse": {
             description?: string;
             entry_summary?: components["schemas"]["server.entrySummary"][];
+            error?: components["schemas"]["server.toolErrorDetail"];
             meta?: components["schemas"]["server.sessionMetaInfo"];
             returned_summaries?: number;
             role_counts?: {
@@ -1263,6 +1362,11 @@ export interface components {
             modified_at?: string;
             path?: string;
             source?: string;
+        };
+        "server.toolErrorDetail": {
+            code?: string;
+            details?: string;
+            message?: string;
         };
         "thinkt.ContentBlock": {
             is_error?: boolean;

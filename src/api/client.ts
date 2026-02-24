@@ -85,6 +85,29 @@ export type ThemeColors = components['schemas']['server.ThemeColors'];
 export type ThemeStyle = components['schemas']['server.ThemeStyle'];
 export type ThemesResponse = components['schemas']['server.ThemesResponse'];
 
+// ============================================
+// Semantic Search Types
+// ============================================
+
+export type SemanticSearchResult = components['schemas']['server.SemanticSearchResult'];
+export type SemanticSearchResponse = components['schemas']['server.SemanticSearchResponse'];
+
+/** Options for semantic search */
+export interface SemanticSearchOptions {
+  /** Natural language search query */
+  query: string;
+  /** Filter by project name (substring match) */
+  project?: string;
+  /** Filter by source (claude, kimi, gemini, copilot, codex, qwen) */
+  source?: string;
+  /** Maximum number of results (default 20) */
+  limit?: number;
+  /** Cosine distance threshold (0-2, lower is more similar) */
+  maxDistance?: number;
+  /** Apply diversity scoring to return results from different sessions */
+  diversity?: boolean;
+}
+
 /** Options for searching sessions */
 export interface SearchOptions {
   /** Search query text */
@@ -130,7 +153,7 @@ export class ThinktNetworkError extends Error {
 // ============================================
 
 export interface ThinktClientConfig {
-  /** Base URL of the THINKT API server (default: http://localhost:7433) */
+  /** Base URL of the THINKT API server (default: http://localhost:8784) */
   baseUrl: string;
   /** API version path (default: /api/v1) */
   apiVersion: string;
@@ -143,7 +166,7 @@ export interface ThinktClientConfig {
 }
 
 const DEFAULT_CONFIG: ThinktClientConfig = {
-  baseUrl: 'http://localhost:7433',
+  baseUrl: 'http://localhost:8784',
   apiVersion: '/api/v1',
   timeout: 30000,
 };
@@ -445,6 +468,31 @@ export class ThinktApiClient {
       params
     );
     return await this.fetchWithTimeout<SearchResponse>(url);
+  }
+
+  /**
+   * Semantic search across indexed sessions using embeddings
+   *
+   * GET /semantic-search?q={query}&project={project}&source={source}&limit={limit}&max_distance={max_distance}&diversity={diversity}
+   */
+  async semanticSearch(options: SemanticSearchOptions): Promise<SemanticSearchResponse> {
+    const params: Record<string, string | number | undefined> = {
+      q: options.query,
+      project: options.project,
+      source: options.source,
+      limit: options.limit,
+      max_distance: options.maxDistance,
+    };
+    if (options.diversity) {
+      params.diversity = 'true';
+    }
+    const url = buildUrl(
+      this.config.baseUrl,
+      this.config.apiVersion,
+      '/semantic-search',
+      params
+    );
+    return await this.fetchWithTimeout<SemanticSearchResponse>(url);
   }
 
   /**

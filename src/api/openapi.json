@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "description": "API for exploring AI conversation traces from Claude Code, Kimi Code, and other sources.\n\n## Authentication\n\nThe API supports Bearer token authentication. When `THINKT_API_TOKEN` environment variable\nis set or `--token` flag is provided, all requests must include the token in the\nAuthorization header:\n\nAuthorization: Bearer <token>\n\nGenerate a secure token with: `thinkt serve token`\n",
+        "description": "API for exploring AI conversation traces from Claude Code, Kimi Code, and other sources.\n\n## Authentication\n\nThe API supports Bearer token authentication. When `THINKT_API_TOKEN` environment variable\nis set or `--token` flag is provided, all requests must include the token in the\nAuthorization header:\n\nAuthorization: Bearer <token>\n\nGenerate a secure token with: `thinkt server token`\n",
         "title": "Thinkt API",
         "contact": {},
         "version": "1.0"
@@ -445,6 +445,113 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/server.SearchResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - missing query",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/server.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - invalid or missing token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/server.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable - indexer not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/server.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/semantic-search": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Search for sessions by meaning using on-device embeddings. Returns sessions ranked by semantic similarity. Requires the indexer with a synced embedding index.",
+                "tags": [
+                    "indexer"
+                ],
+                "summary": "Semantic search across indexed sessions",
+                "parameters": [
+                    {
+                        "description": "Natural language search query",
+                        "name": "q",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Filter by project name (substring match)",
+                        "name": "project",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Filter by source (claude, kimi, gemini, copilot, codex, qwen)",
+                        "name": "source",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Maximum number of results (default 20)",
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "description": "Cosine distance threshold (0-2, lower is more similar)",
+                        "name": "max_distance",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "description": "Apply diversity scoring to return results from different sessions",
+                        "name": "diversity",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/server.SemanticSearchResponse"
                                 }
                             }
                         }
@@ -1266,6 +1373,64 @@
                     }
                 }
             },
+            "server.SemanticSearchResponse": {
+                "type": "object",
+                "properties": {
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/server.SemanticSearchResult"
+                        }
+                    }
+                }
+            },
+            "server.SemanticSearchResult": {
+                "type": "object",
+                "properties": {
+                    "chunk_index": {
+                        "type": "integer"
+                    },
+                    "distance": {
+                        "type": "number"
+                    },
+                    "entry_uuid": {
+                        "type": "string"
+                    },
+                    "first_prompt": {
+                        "type": "string"
+                    },
+                    "line_number": {
+                        "type": "integer"
+                    },
+                    "project_name": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "session_id": {
+                        "type": "string"
+                    },
+                    "session_path": {
+                        "type": "string"
+                    },
+                    "source": {
+                        "type": "string"
+                    },
+                    "timestamp": {
+                        "type": "string"
+                    },
+                    "tool_name": {
+                        "type": "string"
+                    },
+                    "total_chunks": {
+                        "type": "integer"
+                    },
+                    "word_count": {
+                        "type": "integer"
+                    }
+                }
+            },
             "server.SessionMetadataResponse": {
                 "type": "object",
                 "properties": {
@@ -1277,6 +1442,9 @@
                         "items": {
                             "$ref": "#/components/schemas/server.entrySummary"
                         }
+                    },
+                    "error": {
+                        "$ref": "#/components/schemas/server.toolErrorDetail"
                     },
                     "meta": {
                         "$ref": "#/components/schemas/server.sessionMetaInfo"
@@ -1602,6 +1770,20 @@
                     }
                 }
             },
+            "server.toolErrorDetail": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "details": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
             "thinkt.ContentBlock": {
                 "type": "object",
                 "properties": {
@@ -1779,15 +1961,6 @@
                 "x-enum-comments": {
                     "RoleCheckpoint": "State recovery markers (Kimi _checkpoint, Claude file-history-snapshot)"
                 },
-                "x-enum-descriptions": [
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "State recovery markers (Kimi _checkpoint, Claude file-history-snapshot)"
-                ],
                 "x-enum-varnames": [
                     "RoleUser",
                     "RoleAssistant",
