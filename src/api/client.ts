@@ -530,16 +530,18 @@ export class ThinktApiClient {
   /**
    * Execute the resume command for a session in a terminal
    *
-   * GET /sessions/{path}/resume?action=exec
+   * POST /sessions/{path}/resume
    */
   async execResumeSession(path: string): Promise<{ success: boolean; message?: string }> {
     const encodedPath = encodeURIComponent(path);
     const url = buildUrl(
       this.config.baseUrl,
       this.config.apiVersion,
-      `/sessions/${encodedPath}/resume?action=exec`
+      `/sessions/${encodedPath}/resume`
     );
-    return await this.fetchWithTimeout<{ success: boolean; message?: string }>(url);
+    return await this.fetchWithTimeout<{ success: boolean; message?: string }>(url, {
+      method: 'POST',
+    });
   }
 
   /**

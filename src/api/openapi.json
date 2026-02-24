@@ -827,25 +827,17 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Returns the command, arguments, and working directory needed to resume a session.\nWith ?action=exec, spawns the command in the configured terminal instead.",
+                "description": "Returns the command, arguments, and working directory needed to resume a session.",
                 "tags": [
                     "sessions"
                 ],
-                "summary": "Get or execute resume command for a session",
+                "summary": "Get resume command for a session",
                 "parameters": [
                     {
                         "description": "Session file path (URL-encoded)",
                         "name": "path",
                         "in": "path",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Set to 'exec' to spawn the command in a terminal",
-                        "name": "action",
-                        "in": "query",
                         "schema": {
                             "type": "string"
                         }
@@ -874,6 +866,101 @@
                     },
                     "401": {
                         "description": "Unauthorized - invalid or missing token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/server.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Source does not support resume",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/server.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/server.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/server.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Executes the resume command in a terminal for the target session.\nThis endpoint requires POST and rejects cross-origin browser requests.",
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "Execute resume command for a session",
+                "parameters": [
+                    {
+                        "description": "Session file path (URL-encoded)",
+                        "name": "path",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/server.OpenInResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/server.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - invalid or missing token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/server.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2061,6 +2148,15 @@
                 "x-enum-comments": {
                     "RoleCheckpoint": "State recovery markers (Kimi _checkpoint, Claude file-history-snapshot)"
                 },
+                "x-enum-descriptions": [
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "State recovery markers (Kimi _checkpoint, Claude file-history-snapshot)"
+                ],
                 "x-enum-varnames": [
                     "RoleUser",
                     "RoleAssistant",
