@@ -107,21 +107,21 @@ export class ThinktClient {
   }
 
   /** List all projects, optionally filtered by source */
-  async getProjects(source?: string, options?: { includeDeleted?: boolean }): Promise<Project[]> {
+  async getProjects(source?: string, options?: { includeDeleted?: boolean; signal?: AbortSignal }): Promise<Project[]> {
     const raw = await this._api.getProjects(source, options);
     return raw.map(convertApiProject);
   }
 
   /** List all sessions for a project */
-  async getSessions(projectID: string, source?: string): Promise<SessionMeta[]> {
-    const raw = await this._api.getSessions(projectID, source);
+  async getSessions(projectID: string, source?: string, signal?: AbortSignal): Promise<SessionMeta[]> {
+    const raw = await this._api.getSessions(projectID, source, signal);
     return raw.map(convertApiSessionMeta);
   }
 
   /** Get session content with entries (paginated) */
   async getSession(
     path: string,
-    options?: { limit?: number; offset?: number },
+    options?: { limit?: number; offset?: number; signal?: AbortSignal },
   ): Promise<SessionResponse> {
     const raw = await this._api.getSession(path, options);
     return {
@@ -244,16 +244,17 @@ export class ThinktClient {
   async *streamSessionEntries(
     path: string,
     chunkSize?: number,
+    signal?: AbortSignal,
   ): AsyncGenerator<Entry, void, unknown> {
-    for await (const rawEntry of this._api.streamSessionEntries(path, chunkSize)) {
+    for await (const rawEntry of this._api.streamSessionEntries(path, chunkSize, signal)) {
       yield convertApiEntry(rawEntry);
     }
   }
 
   /** Get all entries from a session (loads all pages) */
-  async getAllSessionEntries(path: string, chunkSize?: number): Promise<Entry[]> {
+  async getAllSessionEntries(path: string, chunkSize?: number, signal?: AbortSignal): Promise<Entry[]> {
     const entries: Entry[] = [];
-    for await (const entry of this.streamSessionEntries(path, chunkSize)) {
+    for await (const entry of this.streamSessionEntries(path, chunkSize, signal)) {
       entries.push(entry);
     }
     return entries;
