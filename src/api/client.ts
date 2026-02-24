@@ -113,6 +113,8 @@ export interface SemanticSearchOptions {
   maxDistance?: number;
   /** Apply diversity scoring to return results from different sessions */
   diversity?: boolean;
+  /** AbortSignal to cancel the request */
+  signal?: AbortSignal;
 }
 
 /** Options for searching sessions */
@@ -131,6 +133,8 @@ export interface SearchOptions {
   caseSensitive?: boolean;
   /** Treat query as a regular expression (default false) */
   regex?: boolean;
+  /** AbortSignal to cancel the request */
+  signal?: AbortSignal;
 }
 
 // ============================================
@@ -237,10 +241,14 @@ export class ThinktApiClient {
 
   private async fetchWithTimeout<T>(
     url: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    signal?: AbortSignal,
   ): Promise<T> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
+    const timeoutController = new AbortController();
+    const timeoutId = setTimeout(() => timeoutController.abort(), this.config.timeout);
+    const combinedSignal = signal
+      ? AbortSignal.any([timeoutController.signal, signal])
+      : timeoutController.signal;
 
     const fetchImpl = this.config.fetch ?? fetch;
 
@@ -252,7 +260,7 @@ export class ThinktApiClient {
 
       const response = await fetchImpl(url, {
         ...options,
-        signal: controller.signal,
+        signal: combinedSignal,
         headers: {
           'Accept': 'application/json',
           ...authHeaders,
@@ -285,6 +293,8 @@ export class ThinktApiClient {
       }
 
       if (error instanceof Error && error.name === 'AbortError') {
+        // Distinguish caller cancellation from timeout
+        if (signal?.aborted) throw error;
         throw new ThinktNetworkError(`Request timeout after ${this.config.timeout}ms`, error);
       }
 
@@ -320,13 +330,13 @@ export class ThinktApiClient {
    *
    * GET /projects?source={source}
    */
-  async getProjects(source?: string, options?: { includeDeleted?: boolean }): Promise<Project[]> {
+  async getProjects(source?: string, options?: { includeDeleted?: boolean; signal?: AbortSignal }): Promise<Project[]> {
     type Response = paths['/projects']['get']['responses'][200]['content']['application/json'];
     const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/projects', {
       source,
       include_deleted: options?.includeDeleted ? 'true' : undefined,
     });
-    const response = await this.fetchWithTimeout<Response>(url);
+    const response = await this.fetchWithTimeout<Response>(url, {}, options?.signal);
     return response.projects ?? [];
   }
 
@@ -339,7 +349,7 @@ export class ThinktApiClient {
    *
    * GET /projects/{source}/{projectID}/sessions
    */
-  async getSessions(projectID: string, source?: string): Promise<SessionMeta[]> {
+  async getSessions(projectID: string, source?: string, signal?: AbortSignal): Promise<SessionMeta[]> {
     type Response = { sessions?: SessionMeta[] };
     const encodedProjectID = encodeURIComponent(projectID);
     const normalizedSource = source?.trim().toLowerCase();
@@ -351,7 +361,7 @@ export class ThinktApiClient {
       this.config.apiVersion,
       path,
     );
-    const response = await this.fetchWithTimeout<Response>(url);
+    const response = await this.fetchWithTimeout<Response>(url, {}, signal);
     return response.sessions ?? [];
   }
 
@@ -362,7 +372,7 @@ export class ThinktApiClient {
    */
   async getSession(
     path: string,
-    options?: { limit?: number; offset?: number }
+    options?: { limit?: number; offset?: number; signal?: AbortSignal }
   ): Promise<ApiSessionResponse> {
     type Response = paths['/sessions/{path}']['get']['responses'][200]['content']['application/json'];
     const encodedPath = encodeURIComponent(path);
@@ -372,7 +382,7 @@ export class ThinktApiClient {
       `/sessions/${encodedPath}`,
       { limit: options?.limit, offset: options?.offset }
     );
-    const response = await this.fetchWithTimeout<Response>(url);
+    const response = await this.fetchWithTimeout<Response>(url, {}, options?.signal);
 
     return {
       meta: response.meta!,
@@ -474,7 +484,7 @@ export class ThinktApiClient {
       '/search',
       params
     );
-    return await this.fetchWithTimeout<SearchResponse>(url);
+    return await this.fetchWithTimeout<SearchResponse>(url, {}, options.signal);
   }
 
   /**
@@ -499,7 +509,7 @@ export class ThinktApiClient {
       '/semantic-search',
       params
     );
-    return await this.fetchWithTimeout<SemanticSearchResponse>(url);
+    return await this.fetchWithTimeout<SemanticSearchResponse>(url, {}, options.signal);
   }
 
   /**
@@ -639,12 +649,12 @@ export class ThinktApiClient {
   /**
    * Stream all entries from a session (handles pagination automatically)
    */
-  async *streamSessionEntries(path: string, chunkSize = 100): AsyncGenerator<Entry, void, unknown> {
+  async *streamSessionEntries(path: string, chunkSize = 100, signal?: AbortSignal): AsyncGenerator<Entry, void, unknown> {
     let offset = 0;
     let hasMore = true;
 
     while (hasMore) {
-      const response = await this.getSession(path, { limit: chunkSize, offset });
+      const response = await this.getSession(path, { limit: chunkSize, offset, signal });
 
       for (const entry of response.entries) {
         yield entry;
@@ -665,9 +675,9 @@ export class ThinktApiClient {
    *
    * Note: For large sessions, consider using streamSessionEntries instead
    */
-  async getAllSessionEntries(path: string, chunkSize = 100): Promise<Entry[]> {
+  async getAllSessionEntries(path: string, chunkSize = 100, signal?: AbortSignal): Promise<Entry[]> {
     const entries: Entry[] = [];
-    for await (const entry of this.streamSessionEntries(path, chunkSize)) {
+    for await (const entry of this.streamSessionEntries(path, chunkSize, signal)) {
       entries.push(entry);
     }
     return entries;
