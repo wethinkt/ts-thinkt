@@ -62,6 +62,8 @@ export type {
   SemanticSearchResult,
   SemanticSearchResponse,
   SemanticSearchOptions,
+  IndexerStatusResponse,
+  IndexerStatusProgressInfo,
   ResumeResponse,
   StatsResponse,
   Team,

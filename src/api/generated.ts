@@ -45,6 +45,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/indexer/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get indexer server status
+         * @description Returns the current state of the indexer server including sync/embedding progress, model info, and uptime. Requires a running indexer server.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.IndexerStatusResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/open-in": {
         parameters: {
             query?: never;
@@ -1199,6 +1247,28 @@ export interface components {
         "server.ErrorResponse": {
             error?: string;
             message?: string;
+        };
+        "server.IndexerStatusProgressInfo": {
+            chunks_done?: number;
+            chunks_total?: number;
+            done?: number;
+            entries?: number;
+            message?: string;
+            project?: number;
+            project_name?: string;
+            project_total?: number;
+            session_id?: string;
+            total?: number;
+        };
+        "server.IndexerStatusResponse": {
+            embed_progress?: components["schemas"]["server.IndexerStatusProgressInfo"];
+            model?: string;
+            model_dim?: number;
+            running?: boolean;
+            state?: string;
+            sync_progress?: components["schemas"]["server.IndexerStatusProgressInfo"];
+            uptime_seconds?: number;
+            watching?: boolean;
         };
         "server.OpenInRequest": {
             /** @description App ID (e.g., "finder", "vscode", "cursor") */

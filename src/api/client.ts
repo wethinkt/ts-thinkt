@@ -64,6 +64,13 @@ export type ResumeResponse = components['schemas']['server.ResumeResponse'];
 export type StatsResponse = components['schemas']['server.StatsResponse'];
 
 // ============================================
+// Indexer Status Types
+// ============================================
+
+export type IndexerStatusResponse = components['schemas']['server.IndexerStatusResponse'];
+export type IndexerStatusProgressInfo = components['schemas']['server.IndexerStatusProgressInfo'];
+
+// ============================================
 // Team Types
 // ============================================
 
@@ -533,6 +540,16 @@ export class ThinktApiClient {
   async getIndexerHealth(): Promise<Record<string, unknown>> {
     const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/indexer/health');
     return await this.fetchWithTimeout<Record<string, unknown>>(url);
+  }
+
+  /**
+   * Get indexer server status (sync/embedding progress, uptime, model info)
+   *
+   * GET /indexer/status
+   */
+  async getIndexerStatus(): Promise<IndexerStatusResponse> {
+    const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/indexer/status');
+    return await this.fetchWithTimeout<IndexerStatusResponse>(url);
   }
 
   /**
