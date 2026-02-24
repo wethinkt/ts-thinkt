@@ -757,16 +757,12 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get or execute resume command for a session
+         * Get resume command for a session
          * @description Returns the command, arguments, and working directory needed to resume a session.
-         *     With ?action=exec, spawns the command in the configured terminal instead.
          */
         get: {
             parameters: {
-                query?: {
-                    /** @description Set to 'exec' to spawn the command in a terminal */
-                    action?: string;
-                };
+                query?: never;
                 header?: never;
                 path: {
                     /** @description Session file path (URL-encoded) */
@@ -812,6 +808,15 @@ export interface paths {
                         "application/json": components["schemas"]["server.ErrorResponse"];
                     };
                 };
+                /** @description Method Not Allowed */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
                 /** @description Internal Server Error */
                 500: {
                     headers: {
@@ -824,7 +829,79 @@ export interface paths {
             };
         };
         put?: never;
-        post?: never;
+        /**
+         * Execute resume command for a session
+         * @description Executes the resume command in a terminal for the target session.
+         *     This endpoint requires POST and rejects cross-origin browser requests.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Session file path (URL-encoded) */
+                    path: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.OpenInResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Source does not support resume */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
