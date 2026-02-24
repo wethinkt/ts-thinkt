@@ -4,12 +4,16 @@ This document provides context for AI agents working on the **ts-thinkt** projec
 
 ## Project Overview
 
-**ts-thinkt** is a TypeScript library for parsing and working with LLM conversation traces from multiple sources (Claude Code, Kimi, Gemini). It provides:
+**ts-thinkt** is a TypeScript library for parsing and working with LLM conversation traces from multiple sources (Claude, Codex, Copilot, Gemini, Kimi, Qwen). It provides:
 
 - **Object Model**: Type-safe representation of conversations, entries, and content blocks
 - **Parsers**: Parse JSONL files from Claude Code, Kimi, and Gemini
-- **API Client**: Type-safe HTTP client for the go-thinkt API server
+- **API Client**: Two-layer type-safe HTTP client for the go-thinkt API server (high-level domain types + low-level OpenAPI)
+- **Search**: Full-text and semantic (embedding-based) search across indexed sessions
 - **Turn Analysis**: Group entries into logical conversation turns for visualization
+- **Team Introspection**: Browse teams, member messages, and task boards
+- **Session Resume**: Get resume commands and execute them in configured terminals
+- **Themes**: List built-in and user-defined themes
 
 ## Architecture
 
@@ -187,9 +191,27 @@ The API module provides two client layers:
 
 Both layers support:
 - Fetch-based HTTP with timeout support
+- AbortSignal for cancellable requests
+- Bearer token authentication
 - Streaming generators for paginated data
 - Custom error types (`ThinktAPIError`, `ThinktNetworkError`)
 - Singleton pattern via `configureDefaultClient()` / `configureDefaultApiClient()`
+
+### API Client Methods
+
+The high-level `ThinktClient` exposes:
+
+| Category | Methods |
+|----------|---------|
+| Sources | `getSources()` |
+| Projects | `getProjects(source?, options?)` |
+| Sessions | `getSessions(projectID, source?, signal?)`, `getSession(path, options?)`, `getSessionMetadata(path, options?)`, `streamSessionEntries(path, chunkSize?, signal?)`, `getAllSessionEntries(path, chunkSize?, signal?)` |
+| Search | `search(options)`, `semanticSearch(options)` |
+| Resume | `getResumeCommand(path)`, `execResumeSession(path)` |
+| Indexer | `getIndexerHealth()`, `getIndexerStatus()`, `getStats()` |
+| Teams | `getTeams()`, `getTeam(teamName)`, `getTeamMemberMessages(teamName, memberName)`, `getTeamTasks(teamName)` |
+| Open-in | `getOpenInApps()`, `openIn(app, path)` |
+| Themes | `getThemes()` |
 
 ## Extending the Library
 

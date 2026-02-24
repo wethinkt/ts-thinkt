@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://www.typescriptlang.org/)
 
-TypeScript library for parsing and working with LLM conversation traces from multiple sources (Claude, Kimi, Gemini).
+TypeScript library for parsing and working with LLM conversation traces from multiple sources (Claude, Codex, Copilot, Gemini, Kimi, Qwen).
 
 ## Installation
 
@@ -18,9 +18,14 @@ npm install @wethinkt/ts-thinkt --registry=https://npm.pkg.github.com
 - **Object Model**: Type-safe representation of conversations, entries, and content blocks
 - **Parsers**: Parse JSONL files from Claude Code, Kimi, and Gemini
 - **API Client**: Two-layer type-safe client for the [go-thinkt](https://github.com/wethinkt/go-thinkt) API server (high-level domain types + low-level OpenAPI)
+- **Search**: Full-text and semantic (embedding-based) search across indexed sessions
 - **Turn Analysis**: Group entries into logical conversation turns for visualization
 - **Multi-Agent Support**: Entry provenance with agent IDs for team/swarm sessions
-- **Project Metadata**: Track project path existence and source storage locations
+- **Team Introspection**: Browse teams, member messages, and task boards
+- **Session Resume**: Get resume commands and execute them in configured terminals
+- **Themes**: List built-in and user-defined themes
+- **AbortSignal**: Cancellable API requests via `AbortController`
+- **Bearer Token Auth**: Optional token-based authentication for API requests
 
 ## Usage
 
@@ -53,6 +58,12 @@ import { createClient } from '@wethinkt/ts-thinkt/api';
 
 const client = createClient({ baseUrl: 'http://localhost:7433' });
 
+// Optional: authenticate with a bearer token
+const authedClient = createClient({
+  baseUrl: 'http://localhost:7433',
+  bearerToken: 'my-token',
+});
+
 // Returns camelCase domain types
 const projects = await client.getProjects();
 const sessions = await client.getSessions(projects[0].id);
@@ -61,6 +72,11 @@ const { meta, entries, hasMore } = await client.getSession(sessions[0].fullPath!
 // Open-in: list available apps and open a path
 const apps = await client.getOpenInApps(); // [{ id: 'finder', name: 'Finder', enabled: true }, ...]
 await client.openIn('vscode', '/path/to/project');
+
+// Cancel requests with AbortController
+const controller = new AbortController();
+const results = await client.getProjects(undefined, { signal: controller.signal });
+controller.abort(); // cancels the request
 ```
 
 For raw OpenAPI access (snake_case types):
@@ -99,6 +115,72 @@ for (const entry of session.entries) {
     console.log(`Source ID: ${entry.sourceAgentId}`); // Raw ID for correlation
   }
 }
+```
+
+### Search
+
+```typescript
+// Full-text search across indexed sessions
+const results = await client.search({ query: 'authentication', limit: 20 });
+
+// Semantic search using embeddings
+const semantic = await client.semanticSearch({
+  query: 'how does the login flow work',
+  maxDistance: 0.5,
+  diversity: true,
+});
+```
+
+### Session Metadata
+
+```typescript
+// Lightweight metadata without fetching full entries
+const metadata = await client.getSessionMetadata(path, {
+  limit: 10,
+  excludeRoles: ['tool'],
+  summaryOnly: true,
+});
+console.log(`Entries: ${metadata.totalEntries}, Bytes: ${metadata.totalContentBytes}`);
+```
+
+### Session Resume
+
+```typescript
+// Get the resume command for a session
+const resume = await client.getResumeCommand(sessionPath);
+console.log(resume);
+
+// Execute resume directly in configured terminal
+await client.execResumeSession(sessionPath);
+```
+
+### Teams
+
+```typescript
+// Browse teams and their members
+const teams = await client.getTeams();
+const team = await client.getTeam('my-team');
+
+// Read team member messages and tasks
+const messages = await client.getTeamMemberMessages('my-team', 'researcher');
+const tasks = await client.getTeamTasks('my-team');
+```
+
+### Indexer & Stats
+
+```typescript
+// Check indexer health and sync progress
+const health = await client.getIndexerHealth();
+const status = await client.getIndexerStatus();
+
+// Get index usage statistics
+const stats = await client.getStats();
+```
+
+### Themes
+
+```typescript
+const themes = await client.getThemes();
 ```
 
 ### Project Path Tracking
