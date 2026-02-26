@@ -20,6 +20,7 @@ export type Role = components['schemas']['thinkt.Role'];
 export type Source = components['schemas']['thinkt.Source'];
 export type SourceInfo = components['schemas']['server.SourceInfo'];
 export type AppInfo = components['schemas']['config.AppInfo'];
+export type AllowedAppsResponse = components['schemas']['server.AllowedAppsResponse'];
 export type ErrorResponse = components['schemas']['server.ErrorResponse'];
 export type SessionMetadataResponse = components['schemas']['server.SessionMetadataResponse'];
 
@@ -433,7 +434,7 @@ export class ThinktApiClient {
    */
   async openIn(app: string, path: string): Promise<void> {
     const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/open-in');
-    
+
     const response = await this.fetchWithTimeout<{ success?: boolean; error?: string }>(url, {
       method: 'POST',
       headers: {
@@ -452,11 +453,11 @@ export class ThinktApiClient {
    *
    * GET /open-in/apps
    */
-  async getOpenInApps(): Promise<AppInfo[]> {
+  async getOpenInApps(): Promise<AllowedAppsResponse> {
     type Response = paths['/open-in/apps']['get']['responses'][200]['content']['application/json'];
     const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/open-in/apps');
     const response = await this.fetchWithTimeout<Response>(url);
-    return response.apps ?? [];
+    return response;
   }
 
   /**

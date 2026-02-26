@@ -10,7 +10,7 @@
 import type {
   ThinktClientConfig,
   SourceInfo,
-  AppInfo,
+  AllowedAppsResponse,
   SearchResponse,
   SearchOptions,
   SemanticSearchResponse,
@@ -176,7 +176,7 @@ export class ThinktClient {
   }
 
   /** List allowed apps for the open-in feature */
-  async getOpenInApps(): Promise<AppInfo[]> {
+  async getOpenInApps(): Promise<AllowedAppsResponse> {
     return this._api.getOpenInApps();
   }
 
