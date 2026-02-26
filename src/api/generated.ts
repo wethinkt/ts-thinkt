@@ -1317,9 +1317,11 @@ export interface components {
             enabled?: boolean;
             id?: string;
             name?: string;
+            terminal?: boolean;
         };
         "server.AllowedAppsResponse": {
             apps?: components["schemas"]["config.AppInfo"][];
+            default_terminal?: string;
         };
         "server.ErrorResponse": {
             error?: string;
@@ -1431,13 +1433,15 @@ export interface components {
             sources?: components["schemas"]["server.SourceInfo"][];
         };
         "server.StatsResponse": {
-            tool_usage?: {
-                [key: string]: number;
-            };
+            top_tools?: components["schemas"]["server.StatsToolCount"][];
             total_entries?: number;
             total_projects?: number;
             total_sessions?: number;
             total_tokens?: number;
+        };
+        "server.StatsToolCount": {
+            count?: number;
+            name?: string;
         };
         "server.TeamMessagesResponse": {
             messages?: components["schemas"]["thinkt.TeamMessage"][];

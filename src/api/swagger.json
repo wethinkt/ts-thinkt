@@ -1073,6 +1073,9 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "terminal": {
+                    "type": "boolean"
                 }
             }
         },
@@ -1084,6 +1087,9 @@
                     "items": {
                         "$ref": "#/definitions/config.AppInfo"
                     }
+                },
+                "default_terminal": {
+                    "type": "string"
                 }
             }
         },
@@ -1420,10 +1426,10 @@
         "server.StatsResponse": {
             "type": "object",
             "properties": {
-                "tool_usage": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "integer"
+                "top_tools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/server.StatsToolCount"
                     }
                 },
                 "total_entries": {
@@ -1437,6 +1443,17 @@
                 },
                 "total_tokens": {
                     "type": "integer"
+                }
+            }
+        },
+        "server.StatsToolCount": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
