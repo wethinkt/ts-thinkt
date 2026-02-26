@@ -62,6 +62,7 @@ export type ResumeResponse = components['schemas']['server.ResumeResponse'];
 // ============================================
 
 export type StatsResponse = components['schemas']['server.StatsResponse'];
+export type StatsToolCount = components['schemas']['server.StatsToolCount'];
 
 // ============================================
 // Indexer Status Types
