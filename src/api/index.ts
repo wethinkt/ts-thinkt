@@ -67,6 +67,7 @@ export type {
   ResumeResponse,
   StatsResponse,
   ServerInfoResponse,
+  SessionResolveResponse,
   Team,
   TeamMember,
   TeamMessage,

@@ -643,6 +643,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/sessions/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Resolve session ownership
+         * @description Resolves an absolute session file path to its canonical project and session metadata.
+         *     Use this for deep-link synchronization: given a session path, immediately know
+         *     which project and source it belongs to without scanning all projects/sessions.
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description Absolute session file path */
+                    path: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.SessionResolveResponse"];
+                    };
+                };
+                /** @description Missing or invalid path */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Session not found or not in any registered source */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/sessions/{path}": {
         parameters: {
             query?: never;
@@ -1471,6 +1551,14 @@ export interface components {
             total_content_bytes?: number;
             total_entries?: number;
         };
+        "server.SessionResolveResponse": {
+            project_id?: string;
+            project_name?: string;
+            project_source?: components["schemas"]["thinkt.Source"];
+            session_id?: string;
+            session_path?: string;
+            workspace_id?: string;
+        };
         "server.SessionResponse": {
             entries?: components["schemas"]["thinkt.Entry"][];
             has_more?: boolean;
@@ -1660,6 +1748,7 @@ export interface components {
             full_path?: string;
             git_branch?: string;
             id?: string;
+            /** @description First real (non-synthetic) assistant model */
             model?: string;
             modified_at?: string;
             /** @description Normalized project path */

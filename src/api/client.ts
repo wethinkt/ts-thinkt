@@ -101,6 +101,12 @@ export type ThemesResponse = components['schemas']['server.ThemesResponse'];
 export type ServerInfoResponse = components['schemas']['server.ServerInfoResponse'];
 
 // ============================================
+// Session Resolve Types
+// ============================================
+
+export type SessionResolveResponse = components['schemas']['server.SessionResolveResponse'];
+
+// ============================================
 // Semantic Search Types
 // ============================================
 
@@ -581,6 +587,24 @@ export class ThinktApiClient {
     type Response = paths['/info']['get']['responses'][200]['content']['application/json'];
     const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/info');
     return await this.fetchWithTimeout<Response>(url);
+  }
+
+  /**
+   * Resolve a session file path to its canonical project/session ownership.
+   * Use this for deep-link synchronization: given a session path, immediately
+   * determine which project and source it belongs to without scanning all
+   * projects/sessions.
+   *
+   * GET /sessions/resolve?path={path}
+   */
+  async resolveSession(path: string, signal?: AbortSignal): Promise<SessionResolveResponse> {
+    const url = buildUrl(
+      this.config.baseUrl,
+      this.config.apiVersion,
+      '/sessions/resolve',
+      { path }
+    );
+    return await this.fetchWithTimeout<SessionResolveResponse>(url, {}, signal);
   }
 
   /**
