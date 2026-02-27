@@ -66,6 +66,7 @@ export type {
   IndexerStatusProgressInfo,
   ResumeResponse,
   StatsResponse,
+  ServerInfoResponse,
   Team,
   TeamMember,
   TeamMessage,

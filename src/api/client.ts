@@ -95,6 +95,12 @@ export type ThemeStyle = components['schemas']['server.ThemeStyle'];
 export type ThemesResponse = components['schemas']['server.ThemesResponse'];
 
 // ============================================
+// Server Info Types
+// ============================================
+
+export type ServerInfoResponse = components['schemas']['server.ServerInfoResponse'];
+
+// ============================================
 // Semantic Search Types
 // ============================================
 
@@ -564,6 +570,17 @@ export class ThinktApiClient {
   async getIndexerStatus(): Promise<IndexerStatusResponse> {
     const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/indexer/status');
     return await this.fetchWithTimeout<IndexerStatusResponse>(url);
+  }
+
+  /**
+   * Get server info (fingerprint, version, uptime, auth status)
+   *
+   * GET /info
+   */
+  async getInfo(): Promise<ServerInfoResponse> {
+    type Response = paths['/info']['get']['responses'][200]['content']['application/json'];
+    const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/info');
+    return await this.fetchWithTimeout<Response>(url);
   }
 
   /**

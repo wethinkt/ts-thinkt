@@ -18,6 +18,7 @@ import type {
   IndexerStatusResponse,
   ResumeResponse,
   StatsResponse,
+  ServerInfoResponse,
   Team,
   TeamMessage,
   TeamTask,
@@ -208,6 +209,11 @@ export class ThinktClient {
   /** Get indexer server status (sync/embedding progress, uptime, model info) */
   async getIndexerStatus(): Promise<IndexerStatusResponse> {
     return this._api.getIndexerStatus();
+  }
+
+  /** Get server info (fingerprint, version, uptime, auth status) */
+  async getInfo(): Promise<ServerInfoResponse> {
+    return this._api.getInfo();
   }
 
   /** Get index usage statistics */

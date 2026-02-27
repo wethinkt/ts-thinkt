@@ -93,6 +93,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get server info
+         * @description Returns server fingerprint, version, uptime, and authentication status
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ServerInfoResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/open-in": {
         parameters: {
             query?: never;
@@ -1401,6 +1449,15 @@ export interface components {
             tool_name?: string;
             total_chunks?: number;
             word_count?: number;
+        };
+        "server.ServerInfoResponse": {
+            authenticated?: boolean;
+            fingerprint?: string;
+            pid?: number;
+            revision?: string;
+            started_at?: string;
+            uptime_seconds?: number;
+            version?: string;
         };
         "server.SessionMetadataResponse": {
             description?: string;

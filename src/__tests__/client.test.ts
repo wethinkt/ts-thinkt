@@ -278,6 +278,34 @@ describe('ThinktApiClient', () => {
     });
   });
 
+  describe('getInfo', () => {
+    it('should fetch server info successfully', async () => {
+      const mockInfo = {
+        authenticated: true,
+        fingerprint: 'abc123',
+        pid: 12345,
+        revision: 'v1.0.0-deadbeef',
+        started_at: '2026-02-27T00:00:00Z',
+        uptime_seconds: 3600,
+        version: '1.0.0',
+      };
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockInfo,
+      });
+
+      const client = new ThinktApiClient({ fetch: mockFetch });
+      const info = await client.getInfo();
+
+      expect(info).toEqual(mockInfo);
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:8784/api/v1/info',
+        expect.any(Object)
+      );
+    });
+  });
+
   describe('semanticSearch', () => {
     it('should perform semantic search with all options', async () => {
       const mockResults = {
