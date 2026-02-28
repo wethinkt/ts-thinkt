@@ -22,6 +22,9 @@
  * const apps = await client.getOpenInApps();
  * await client.openIn('vscode', '/path/to/project');
  *
+ * // List available languages and active locale
+ * const languages = await client.getLanguages();
+ *
  * // For raw OpenAPI access, use the low-level client:
  * const rawProjects = await client.api.getProjects();
  * ```
@@ -53,6 +56,8 @@ export type {
   ThinktClientConfig,
   ApiSessionResponse,
   SourceInfo,
+  LanguageInfo,
+  LanguagesResponse,
   AppInfo,
   ErrorResponse,
   SearchResponse,

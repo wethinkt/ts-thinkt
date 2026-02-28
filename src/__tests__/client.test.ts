@@ -95,6 +95,44 @@ describe('ThinktApiClient', () => {
     });
   });
 
+  describe('getLanguages', () => {
+    it('should fetch languages successfully', async () => {
+      const mockLanguages = {
+        active: 'en-US',
+        languages: [
+          { tag: 'en-US', name: 'English', english_name: 'English', coverage: 100, active: true },
+          { tag: 'es-ES', name: 'Español', english_name: 'Spanish', coverage: 85, active: false },
+        ],
+      };
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockLanguages,
+      });
+
+      const client = new ThinktApiClient({ fetch: mockFetch });
+      const languages = await client.getLanguages();
+
+      expect(languages).toEqual(mockLanguages);
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:8784/api/v1/languages',
+        expect.any(Object)
+      );
+    });
+
+    it('should return empty object when response is empty', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({}),
+      });
+
+      const client = new ThinktApiClient({ fetch: mockFetch });
+      const languages = await client.getLanguages();
+
+      expect(languages).toEqual({});
+    });
+  });
+
   describe('getProjects', () => {
     it('should fetch all projects', async () => {
       const mockProjects = {

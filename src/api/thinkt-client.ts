@@ -10,6 +10,7 @@
 import type {
   ThinktClientConfig,
   SourceInfo,
+  LanguagesResponse,
   AllowedAppsResponse,
   SearchResponse,
   SearchOptions,
@@ -105,6 +106,11 @@ export class ThinktClient {
   /** List available trace sources (Claude Code, Kimi Code, etc.) */
   async getSources(): Promise<SourceInfo[]> {
     return this._api.getSources();
+  }
+
+  /** List available languages and the currently active language */
+  async getLanguages(): Promise<LanguagesResponse> {
+    return this._api.getLanguages();
   }
 
   /** List all projects, optionally filtered by source */

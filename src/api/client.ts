@@ -19,6 +19,8 @@ export type TokenUsage = components['schemas']['thinkt.TokenUsage'];
 export type Role = components['schemas']['thinkt.Role'];
 export type Source = components['schemas']['thinkt.Source'];
 export type SourceInfo = components['schemas']['server.SourceInfo'];
+export type LanguageInfo = components['schemas']['i18n.LangInfo'];
+export type LanguagesResponse = components['schemas']['server.LanguagesResponse'];
 export type AppInfo = components['schemas']['config.AppInfo'];
 export type AllowedAppsResponse = components['schemas']['server.AllowedAppsResponse'];
 export type ErrorResponse = components['schemas']['server.ErrorResponse'];
@@ -333,6 +335,17 @@ export class ThinktApiClient {
     const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/sources');
     const response = await this.fetchWithTimeout<Response>(url);
     return response.sources ?? [];
+  }
+
+  /**
+   * List available languages and currently active language
+   *
+   * GET /languages
+   */
+  async getLanguages(): Promise<LanguagesResponse> {
+    type Response = paths['/languages']['get']['responses'][200]['content']['application/json'];
+    const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/languages');
+    return await this.fetchWithTimeout<Response>(url);
   }
 
   // ============================================

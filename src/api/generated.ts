@@ -141,6 +141,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/languages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List available languages
+         * @description Returns all supported languages and the currently active one
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.LanguagesResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/open-in": {
         parameters: {
             query?: never;
@@ -1447,6 +1486,13 @@ export interface components {
             name?: string;
             terminal?: boolean;
         };
+        "i18n.LangInfo": {
+            active?: boolean;
+            coverage?: number;
+            english_name?: string;
+            name?: string;
+            tag?: string;
+        };
         "server.AllowedAppsResponse": {
             apps?: components["schemas"]["config.AppInfo"][];
             default_terminal?: string;
@@ -1476,6 +1522,10 @@ export interface components {
             sync_progress?: components["schemas"]["server.IndexerStatusProgressInfo"];
             uptime_seconds?: number;
             watching?: boolean;
+        };
+        "server.LanguagesResponse": {
+            active?: string;
+            languages?: components["schemas"]["i18n.LangInfo"][];
         };
         "server.OpenInRequest": {
             /** @description App ID (e.g., "finder", "vscode", "cursor") */

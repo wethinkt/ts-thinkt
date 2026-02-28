@@ -251,6 +251,8 @@ export type {
   SessionResponse,
   ApiSessionResponse,
   SourceInfo,
+  LanguageInfo,
+  LanguagesResponse,
   ErrorResponse,
   ResumeResponse,
   StatsResponse,

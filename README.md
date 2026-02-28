@@ -24,6 +24,7 @@ npm install @wethinkt/ts-thinkt --registry=https://npm.pkg.github.com
 - **Team Introspection**: Browse teams, member messages, and task boards
 - **Session Resume**: Get resume commands and execute them in configured terminals
 - **Themes**: List built-in and user-defined themes
+- **Languages**: Discover available UI languages and the currently active one
 - **AbortSignal**: Cancellable API requests via `AbortController`
 - **Bearer Token Auth**: Optional token-based authentication for API requests
 
@@ -72,6 +73,9 @@ const { meta, entries, hasMore } = await client.getSession(sessions[0].fullPath!
 // Open-in: list available apps and open a path
 const apps = await client.getOpenInApps(); // [{ id: 'finder', name: 'Finder', enabled: true }, ...]
 await client.openIn('vscode', '/path/to/project');
+
+// Languages: list supported UI languages and current active language
+const i18n = await client.getLanguages();
 
 // Cancel requests with AbortController
 const controller = new AbortController();
@@ -181,6 +185,13 @@ const stats = await client.getStats();
 
 ```typescript
 const themes = await client.getThemes();
+```
+
+### Languages
+
+```typescript
+const languages = await client.getLanguages();
+console.log(languages.active);
 ```
 
 ### Project Path Tracking
