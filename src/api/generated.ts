@@ -13,7 +13,7 @@ export interface paths {
         };
         /**
          * Get indexer health status
-         * @description Returns whether the indexer binary is available and the database path
+         * @description Returns whether the indexer server is reachable and the database is accessible
          */
         get: {
             parameters: {
@@ -30,9 +30,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            [key: string]: unknown;
-                        };
+                        "application/json": components["schemas"]["server.IndexerHealthResponse"];
                     };
                 };
             };
@@ -540,7 +538,7 @@ export interface paths {
                     q: string;
                     /** @description Filter by project name (substring match) */
                     project?: string;
-                    /** @description Filter by source (claude, kimi) */
+                    /** @description Filter by source (claude, kimi), case-insensitive */
                     source?: string;
                     /** @description Maximum total matches (default 50) */
                     limit?: number;
@@ -621,7 +619,7 @@ export interface paths {
                     q: string;
                     /** @description Filter by project name (substring match) */
                     project?: string;
-                    /** @description Filter by source (claude, kimi, gemini, copilot, codex, qwen) */
+                    /** @description Filter by source (claude, kimi, gemini, copilot, codex, qwen), case-insensitive */
                     source?: string;
                     /** @description Maximum number of results (default 20) */
                     limit?: number;
@@ -1493,15 +1491,7 @@ export interface components {
             name?: string;
             tag?: string;
         };
-        "server.AllowedAppsResponse": {
-            apps?: components["schemas"]["config.AppInfo"][];
-            default_terminal?: string;
-        };
-        "server.ErrorResponse": {
-            error?: string;
-            message?: string;
-        };
-        "server.IndexerStatusProgressInfo": {
+        "rpc.ProgressInfo": {
             chunks_done?: number;
             chunks_total?: number;
             done?: number;
@@ -1513,13 +1503,69 @@ export interface components {
             session_id?: string;
             total?: number;
         };
+        "rpc.ToolCount": {
+            count?: number;
+            name?: string;
+        };
+        "search.Match": {
+            line_num?: number;
+            /** @description End offset of match within Preview */
+            match_end?: number;
+            /** @description Start offset of match within Preview */
+            match_start?: number;
+            preview?: string;
+            role?: string;
+        };
+        "search.SemanticResult": {
+            chunk_index?: number;
+            distance?: number;
+            entry_uuid?: string;
+            first_prompt?: string;
+            line_number?: number;
+            project_name?: string;
+            role?: string;
+            /** @description Combined relevance + diversity score */
+            score?: number;
+            session_id?: string;
+            session_path?: string;
+            source?: string;
+            tier?: string;
+            timestamp?: string;
+            tool_name?: string;
+            total_chunks?: number;
+            word_count?: number;
+        };
+        "search.SessionResult": {
+            matches?: components["schemas"]["search.Match"][];
+            path?: string;
+            project_name?: string;
+            session_id?: string;
+            source?: string;
+        };
+        "server.AllowedAppsResponse": {
+            apps?: components["schemas"]["config.AppInfo"][];
+            default_terminal?: string;
+        };
+        "server.ErrorResponse": {
+            error?: string;
+            message?: string;
+        };
+        "server.IndexerHealthResponse": {
+            available?: boolean;
+            database_accessible?: boolean;
+            indexed_projects?: number;
+            indexed_sessions?: number;
+        };
         "server.IndexerStatusResponse": {
-            embed_progress?: components["schemas"]["server.IndexerStatusProgressInfo"];
+            embed_progress?: components["schemas"]["rpc.ProgressInfo"];
+            embedding?: boolean;
             model?: string;
             model_dim?: number;
             running?: boolean;
+            /** @description "idle", "syncing", "embedding", "syncing+embedding" */
             state?: string;
-            sync_progress?: components["schemas"]["server.IndexerStatusProgressInfo"];
+            sync_progress?: components["schemas"]["rpc.ProgressInfo"];
+            syncing?: boolean;
             uptime_seconds?: number;
             watching?: boolean;
         };
@@ -1545,40 +1591,12 @@ export interface components {
             command?: string;
             dir?: string;
         };
-        "server.SearchMatch": {
-            line_num?: number;
-            preview?: string;
-            role?: string;
-        };
         "server.SearchResponse": {
-            sessions?: components["schemas"]["server.SearchSessionResult"][];
+            results?: components["schemas"]["search.SessionResult"][];
             total_matches?: number;
         };
-        "server.SearchSessionResult": {
-            matches?: components["schemas"]["server.SearchMatch"][];
-            path?: string;
-            project_name?: string;
-            session_id?: string;
-            source?: string;
-        };
         "server.SemanticSearchResponse": {
-            results?: components["schemas"]["server.SemanticSearchResult"][];
-        };
-        "server.SemanticSearchResult": {
-            chunk_index?: number;
-            distance?: number;
-            entry_uuid?: string;
-            first_prompt?: string;
-            line_number?: number;
-            project_name?: string;
-            role?: string;
-            session_id?: string;
-            session_path?: string;
-            source?: string;
-            timestamp?: string;
-            tool_name?: string;
-            total_chunks?: number;
-            word_count?: number;
+            results?: components["schemas"]["search.SemanticResult"][];
         };
         "server.ServerInfoResponse": {
             authenticated?: boolean;
@@ -1628,15 +1646,13 @@ export interface components {
             sources?: components["schemas"]["server.SourceInfo"][];
         };
         "server.StatsResponse": {
-            top_tools?: components["schemas"]["server.StatsToolCount"][];
+            embed_model?: string;
+            top_tools?: components["schemas"]["rpc.ToolCount"][];
+            total_embeddings?: number;
             total_entries?: number;
             total_projects?: number;
             total_sessions?: number;
             total_tokens?: number;
-        };
-        "server.StatsToolCount": {
-            count?: number;
-            name?: string;
         };
         "server.TeamMessagesResponse": {
             messages?: components["schemas"]["thinkt.TeamMessage"][];

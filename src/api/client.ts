@@ -50,8 +50,8 @@ export interface SessionMetadataOptions {
 // Search Types
 // ============================================
 
-export type SearchMatch = components['schemas']['server.SearchMatch'];
-export type SearchSessionResult = components['schemas']['server.SearchSessionResult'];
+export type SearchMatch = components['schemas']['search.Match'];
+export type SearchSessionResult = components['schemas']['search.SessionResult'];
 export type SearchResponse = components['schemas']['server.SearchResponse'];
 
 // ============================================
@@ -65,14 +65,15 @@ export type ResumeResponse = components['schemas']['server.ResumeResponse'];
 // ============================================
 
 export type StatsResponse = components['schemas']['server.StatsResponse'];
-export type StatsToolCount = components['schemas']['server.StatsToolCount'];
+export type StatsToolCount = components['schemas']['rpc.ToolCount'];
 
 // ============================================
 // Indexer Status Types
 // ============================================
 
 export type IndexerStatusResponse = components['schemas']['server.IndexerStatusResponse'];
-export type IndexerStatusProgressInfo = components['schemas']['server.IndexerStatusProgressInfo'];
+export type IndexerStatusProgressInfo = components['schemas']['rpc.ProgressInfo'];
+export type IndexerHealthResponse = components['schemas']['server.IndexerHealthResponse'];
 
 // ============================================
 // Team Types
@@ -112,7 +113,7 @@ export type SessionResolveResponse = components['schemas']['server.SessionResolv
 // Semantic Search Types
 // ============================================
 
-export type SemanticSearchResult = components['schemas']['server.SemanticSearchResult'];
+export type SemanticSearchResult = components['schemas']['search.SemanticResult'];
 export type SemanticSearchResponse = components['schemas']['server.SemanticSearchResponse'];
 
 /** Options for semantic search */
@@ -576,9 +577,9 @@ export class ThinktApiClient {
    *
    * GET /indexer/health
    */
-  async getIndexerHealth(): Promise<Record<string, unknown>> {
+  async getIndexerHealth(): Promise<IndexerHealthResponse> {
     const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/indexer/health');
-    return await this.fetchWithTimeout<Record<string, unknown>>(url);
+    return await this.fetchWithTimeout<IndexerHealthResponse>(url);
   }
 
   /**

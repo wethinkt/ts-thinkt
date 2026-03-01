@@ -9,7 +9,7 @@
     "paths": {
         "/indexer/health": {
             "get": {
-                "description": "Returns whether the indexer binary is available and the database path",
+                "description": "Returns whether the indexer server is reachable and the database is accessible",
                 "produces": [
                     "application/json"
                 ],
@@ -21,8 +21,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/server.IndexerHealthResponse"
                         }
                     }
                 }
@@ -409,7 +408,7 @@
                     },
                     {
                         "type": "string",
-                        "description": "Filter by source (claude, kimi)",
+                        "description": "Filter by source (claude, kimi), case-insensitive",
                         "name": "source",
                         "in": "query"
                     },
@@ -497,7 +496,7 @@
                     },
                     {
                         "type": "string",
-                        "description": "Filter by source (claude, kimi, gemini, copilot, codex, qwen)",
+                        "description": "Filter by source (claude, kimi, gemini, copilot, codex, qwen), case-insensitive",
                         "name": "source",
                         "in": "query"
                     },
@@ -1208,32 +1207,7 @@
                 }
             }
         },
-        "server.AllowedAppsResponse": {
-            "type": "object",
-            "properties": {
-                "apps": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/config.AppInfo"
-                    }
-                },
-                "default_terminal": {
-                    "type": "string"
-                }
-            }
-        },
-        "server.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "server.IndexerStatusProgressInfo": {
+        "rpc.ProgressInfo": {
             "type": "object",
             "properties": {
                 "chunks_done": {
@@ -1268,11 +1242,166 @@
                 }
             }
         },
+        "rpc.ToolCount": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "search.Match": {
+            "type": "object",
+            "properties": {
+                "line_num": {
+                    "type": "integer"
+                },
+                "match_end": {
+                    "description": "End offset of match within Preview",
+                    "type": "integer"
+                },
+                "match_start": {
+                    "description": "Start offset of match within Preview",
+                    "type": "integer"
+                },
+                "preview": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "search.SemanticResult": {
+            "type": "object",
+            "properties": {
+                "chunk_index": {
+                    "type": "integer"
+                },
+                "distance": {
+                    "type": "number"
+                },
+                "entry_uuid": {
+                    "type": "string"
+                },
+                "first_prompt": {
+                    "type": "string"
+                },
+                "line_number": {
+                    "type": "integer"
+                },
+                "project_name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "score": {
+                    "description": "Combined relevance + diversity score",
+                    "type": "number"
+                },
+                "session_id": {
+                    "type": "string"
+                },
+                "session_path": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "tier": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "tool_name": {
+                    "type": "string"
+                },
+                "total_chunks": {
+                    "type": "integer"
+                },
+                "word_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "search.SessionResult": {
+            "type": "object",
+            "properties": {
+                "matches": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/search.Match"
+                    }
+                },
+                "path": {
+                    "type": "string"
+                },
+                "project_name": {
+                    "type": "string"
+                },
+                "session_id": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.AllowedAppsResponse": {
+            "type": "object",
+            "properties": {
+                "apps": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/config.AppInfo"
+                    }
+                },
+                "default_terminal": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.IndexerHealthResponse": {
+            "type": "object",
+            "properties": {
+                "available": {
+                    "type": "boolean"
+                },
+                "database_accessible": {
+                    "type": "boolean"
+                },
+                "indexed_projects": {
+                    "type": "integer"
+                },
+                "indexed_sessions": {
+                    "type": "integer"
+                }
+            }
+        },
         "server.IndexerStatusResponse": {
             "type": "object",
             "properties": {
                 "embed_progress": {
-                    "$ref": "#/definitions/server.IndexerStatusProgressInfo"
+                    "$ref": "#/definitions/rpc.ProgressInfo"
+                },
+                "embedding": {
+                    "type": "boolean"
                 },
                 "model": {
                     "type": "string"
@@ -1284,10 +1413,14 @@
                     "type": "boolean"
                 },
                 "state": {
+                    "description": "\"idle\", \"syncing\", \"embedding\", \"syncing+embedding\"",
                     "type": "string"
                 },
                 "sync_progress": {
-                    "$ref": "#/definitions/server.IndexerStatusProgressInfo"
+                    "$ref": "#/definitions/rpc.ProgressInfo"
+                },
+                "syncing": {
+                    "type": "boolean"
                 },
                 "uptime_seconds": {
                     "type": "integer"
@@ -1363,54 +1496,17 @@
                 }
             }
         },
-        "server.SearchMatch": {
-            "type": "object",
-            "properties": {
-                "line_num": {
-                    "type": "integer"
-                },
-                "preview": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                }
-            }
-        },
         "server.SearchResponse": {
             "type": "object",
             "properties": {
-                "sessions": {
+                "results": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/server.SearchSessionResult"
+                        "$ref": "#/definitions/search.SessionResult"
                     }
                 },
                 "total_matches": {
                     "type": "integer"
-                }
-            }
-        },
-        "server.SearchSessionResult": {
-            "type": "object",
-            "properties": {
-                "matches": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/server.SearchMatch"
-                    }
-                },
-                "path": {
-                    "type": "string"
-                },
-                "project_name": {
-                    "type": "string"
-                },
-                "session_id": {
-                    "type": "string"
-                },
-                "source": {
-                    "type": "string"
                 }
             }
         },
@@ -1420,55 +1516,8 @@
                 "results": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/server.SemanticSearchResult"
+                        "$ref": "#/definitions/search.SemanticResult"
                     }
-                }
-            }
-        },
-        "server.SemanticSearchResult": {
-            "type": "object",
-            "properties": {
-                "chunk_index": {
-                    "type": "integer"
-                },
-                "distance": {
-                    "type": "number"
-                },
-                "entry_uuid": {
-                    "type": "string"
-                },
-                "first_prompt": {
-                    "type": "string"
-                },
-                "line_number": {
-                    "type": "integer"
-                },
-                "project_name": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "session_id": {
-                    "type": "string"
-                },
-                "session_path": {
-                    "type": "string"
-                },
-                "source": {
-                    "type": "string"
-                },
-                "timestamp": {
-                    "type": "string"
-                },
-                "tool_name": {
-                    "type": "string"
-                },
-                "total_chunks": {
-                    "type": "integer"
-                },
-                "word_count": {
-                    "type": "integer"
                 }
             }
         },
@@ -1618,11 +1667,17 @@
         "server.StatsResponse": {
             "type": "object",
             "properties": {
+                "embed_model": {
+                    "type": "string"
+                },
                 "top_tools": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/server.StatsToolCount"
+                        "$ref": "#/definitions/rpc.ToolCount"
                     }
+                },
+                "total_embeddings": {
+                    "type": "integer"
                 },
                 "total_entries": {
                     "type": "integer"
@@ -1635,17 +1690,6 @@
                 },
                 "total_tokens": {
                     "type": "integer"
-                }
-            }
-        },
-        "server.StatsToolCount": {
-            "type": "object",
-            "properties": {
-                "count": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
                 }
             }
         },

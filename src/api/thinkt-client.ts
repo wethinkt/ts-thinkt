@@ -17,6 +17,7 @@ import type {
   SemanticSearchResponse,
   SemanticSearchOptions,
   IndexerStatusResponse,
+  IndexerHealthResponse,
   ResumeResponse,
   StatsResponse,
   ServerInfoResponse,
@@ -208,7 +209,7 @@ export class ThinktClient {
   }
 
   /** Get indexer health status */
-  async getIndexerHealth(): Promise<Record<string, unknown>> {
+  async getIndexerHealth(): Promise<IndexerHealthResponse> {
     return this._api.getIndexerHealth();
   }
 
