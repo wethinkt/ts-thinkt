@@ -1,6 +1,6 @@
 {
   "name": "@wethinkt/ts-thinkt",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "description": "TypeScript library for parsing and working with LLM conversation traces",
   "type": "module",
   "main": "dist/index.js",
