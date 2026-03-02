@@ -680,6 +680,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/sessions/active": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List active sessions
+         * @description Returns sessions detected as currently active via IDE lock files and file mtime heuristics
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ActiveSessionsResponse"];
+                    };
+                };
+                /** @description Unauthorized - invalid or missing token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["server.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/sessions/resolve": {
         parameters: {
             query?: never;
@@ -1542,6 +1599,9 @@ export interface components {
             session_id?: string;
             source?: string;
         };
+        "server.ActiveSessionsResponse": {
+            sessions?: components["schemas"]["thinkt.ActiveSession"][];
+        };
         "server.AllowedAppsResponse": {
             apps?: components["schemas"]["config.AppInfo"][];
             default_terminal?: string;
@@ -1730,6 +1790,19 @@ export interface components {
             details?: string;
             message?: string;
         };
+        "thinkt.ActiveSession": {
+            detected_at?: string;
+            /** @description e.g. "Visual Studio Code" (ide_lock only) */
+            ide?: string;
+            /** @description "ide_lock", "process", "mtime" */
+            method?: string;
+            /** @description process ID (ide_lock, process) */
+            pid?: number;
+            project_path?: string;
+            session_id?: string;
+            session_path?: string;
+            source?: components["schemas"]["thinkt.Source"];
+        };
         "thinkt.ContentBlock": {
             is_error?: boolean;
             media_data?: string;
@@ -1806,6 +1879,7 @@ export interface components {
             /** @description Number of files: 0=unknown, 1=single, 2+=chunked */
             chunk_count?: number;
             created_at?: string;
+            /** @description 0 means empty OR not computed yet (lazy metadata path) */
             entry_count?: number;
             /** @description Size in bytes */
             file_size?: number;

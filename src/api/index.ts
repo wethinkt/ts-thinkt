@@ -86,6 +86,8 @@ export type {
   ThemeColors,
   ThemeStyle,
   ThemesResponse,
+  ActiveSession,
+  ActiveSessionsResponse,
 } from './client';
 
 // Raw API types (for consumers who need OpenAPI-level access)

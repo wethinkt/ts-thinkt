@@ -21,6 +21,7 @@ import type {
   ResumeResponse,
   StatsResponse,
   ServerInfoResponse,
+  ActiveSession,
   Team,
   TeamMessage,
   TeamTask,
@@ -226,6 +227,11 @@ export class ThinktClient {
   /** Get index usage statistics */
   async getStats(): Promise<StatsResponse> {
     return this._api.getStats();
+  }
+
+  /** List active sessions detected via IDE lock files and mtime heuristics */
+  async getActiveSessions(): Promise<ActiveSession[]> {
+    return this._api.getActiveSessions();
   }
 
   /** List all teams */

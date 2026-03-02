@@ -98,6 +98,13 @@ export type ThemeStyle = components['schemas']['server.ThemeStyle'];
 export type ThemesResponse = components['schemas']['server.ThemesResponse'];
 
 // ============================================
+// Active Sessions Types
+// ============================================
+
+export type ActiveSession = components['schemas']['thinkt.ActiveSession'];
+export type ActiveSessionsResponse = components['schemas']['server.ActiveSessionsResponse'];
+
+// ============================================
 // Server Info Types
 // ============================================
 
@@ -450,6 +457,18 @@ export class ThinktApiClient {
       params
     );
     return await this.fetchWithTimeout<Response>(url);
+  }
+
+  /**
+   * List active sessions detected via IDE lock files and file mtime heuristics
+   *
+   * GET /sessions/active
+   */
+  async getActiveSessions(): Promise<ActiveSession[]> {
+    type Response = paths['/sessions/active']['get']['responses'][200]['content']['application/json'];
+    const url = buildUrl(this.config.baseUrl, this.config.apiVersion, '/sessions/active');
+    const response = await this.fetchWithTimeout<Response>(url);
+    return response.sessions ?? [];
   }
 
   /**
